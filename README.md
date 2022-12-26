@@ -432,77 +432,178 @@ proc databaseGetInfo*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#get--db
 	##
 ```
+
+### Put database
+Creates a new database. The database name {db} must be composed by following next rules:
+
+- Name must begin with a lowercase letter (a-z)
+- Lowercase characters (a-z)
+- Digits (0-9)
+- Any of the characters _, $, (, ), +, -, and /.
+
+If you’re familiar with Regular Expressions, the rules above could be written as ^[a-z][a-z0-9_$()+/-]*$.
+
+- see https://docs.couchdb.org/en/latest/api/database/common.html#put--db
 ```
 proc databasePut*(self: CouchDb, db: string, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#put--db
 	##
+```
 
+### Delete database
+Deletes the specified database, and all the documents and attachments contained within it.
+
+- see https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
+```
 proc databaseDelete*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
 	##
+```
 
+### Post database create new document
+Creates a new document in the specified database, using the supplied JSON document structure.
+
+If the JSON structure includes the _id field, then the document will be created with the specified document ID.
+
+If the _id field is not specified, a new unique ID will be generated, following whatever UUID algorithm is configured for that server.
+
+- see https://docs.couchdb.org/en/latest/api/database/common.html#post--db
+```
 proc databasePost*(self: CouchDb, db: string, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#post--db
 	##
+```
 
+### Get all docs
+Executes the built-in _all_docs view, returning all of the documents in the database. With the exception of the URL parameters (described below), this endpoint works identically to any other view. Refer to the view endpoint documentation for a complete description of the available query parameters and the format of the returned data.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
+```
 proc databaseGetAllDocs*(self: CouchDb, db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
 	##
+```
 
+### Post all docs
+POST _all_docs functionality supports identical parameters and behavior as specified in the GET /{db}/_all_docs API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
+```
 proc databasePostAllDocs*(self: CouchDb, db: string, jsonData: JsonNode, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
 	##
+```
 
+### Get design docs
+Returns a JSON structure of all of the design documents in a given database. The information is returned as a JSON structure containing meta information about the return structure, including a list of all design documents and basic contents, consisting the ID, revision and key. The key is the design document’s _id.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
+```
 proc databaseGetDesignDocs*(self: CouchDb, db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
 	##
+```
 
+### Post design docs
+POST _design_docs functionality supports identical parameters and behavior as specified in the GET /{db}/_design_docs API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
+```
 proc databasePostDesignDocs*(self: CouchDb, db: string, jsonData: JsonNode, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
 	##
+```
 
+### Post queries all docs
+Executes multiple specified built-in view queries of all documents in this database. This enables you to request multiple queries in a single request, in place of multiple POST /{db}/_all_docs requests.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
+```
 proc databasePostAllDocsQueries*(self: CouchDb, db: string, queries: JsonNode): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
 	##
+```
 
+### Post bulk operation fetch several docs
+This method can be called to query several documents in bulk. It is well suited for fetching a specific revision of documents, as replicators do for example, or for getting revision history.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
+```
 proc databasePostBulkGet*(self: CouchDb, db: string, jsonData: JsonNode, revs: bool = true): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
 	##
+```
 
+### Post bulk operation for update several docs
+The bulk document API allows you to create and update multiple documents at the same time within a single request. The basic operation is similar to creating or updating a single document, except that you batch the document structure and information.
+
+When creating new documents the document ID (_id) is optional.
+
+For updating existing documents, you must provide the document ID, revision information (_rev), and new document values.
+
+In case of batch deleting documents all fields as document ID, revision information and deletion status (_deleted) are required.
+
+- see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
+```
 proc databasePostBulkDocs*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
 	##
+```
 
+### Post find docs
+Find documents using a declarative JSON querying syntax. Queries will use custom indexes, specified using the _index endpoint, if available. Otherwise, they use the built-in _all_docs index, which can be arbitrarily slow.
+
+- see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
+```
 proc databasePostFind*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
 	##
+```
 
+### Post create index on database
+Mango is a declarative JSON querying language for CouchDB databases. Mango wraps several index types, starting with the Primary Index out-of-the-box. Mango indexes, with index type json, are built using MapReduce Views.
+
+Create a new index on a database.
+
+- see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
+```
 proc databasePostIndex*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
 	##
+```
 
+### Get index from database
+When you make a GET request to /db/_index, you get a list of all indexes in the database. In addition to the information available through this API, indexes are also stored in design documents <index-functions>. Design documents are regular documents that have an ID starting with _design/. Design documents can be retrieved and modified in the same way as any other document, although this is not necessary when using Mango.
+
+- see https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
+```
 proc databaseGetIndex*(self: CouchDb, db: string, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
 	##
+```
 
+### Delete index from database
+- see https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
+```
 proc databaseDeleteIndex*(self: CouchDb, db: string, ddoc: string, name: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
 	##
-
+```
+```
 proc databasePostExplain*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
