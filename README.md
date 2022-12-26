@@ -41,7 +41,7 @@ if isMainModule:
 ```
 
 ### Create new document with attachment
-```
+```nim
 proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAttachment]): Future[tuple[body: string, boundary: string, length: int]] {.async.}
 	##
 	##	create new document with given attachment
@@ -52,7 +52,7 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 ```
 
 ### Create new CouchDb object
-```
+```nim
 proc newCouchDb*(
 	username: string,
 	password: string,
@@ -78,7 +78,7 @@ proc newCouchDb*(
 Accessing the root of a CouchDB instance returns meta information about the instance. The response is a JSON structure containing information about the server, including a welcome message and the version of the server.
 
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--
-```
+```nim
 proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#get--
