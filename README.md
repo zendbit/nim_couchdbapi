@@ -90,38 +90,69 @@ proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
 	##
 ```
+
+### Get database updates
+Returns a list of all database events in the CouchDB instance. The existence of the _global_changes database is required to use this endpoint.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
 ```
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
 	##
+```
 
+### Get nodes in cluster
+Displays the nodes that are part of the cluster as cluster_nodes. The field all_nodes displays all nodes this node knows about, including the ones that are part of the cluster. The endpoint is useful when setting up a cluster.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
+```
 proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 	##
+```
 
+### Replicate database between node or local server
+Request, configure, or stop, a replication operation.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
+```
 proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 	##
+```
 
+### Get scheduler jobs
+List of replication jobs. Includes replications created via /_replicate endpoint as well as those created from replication documents. Does not include replications which have completed or have failed to start because replication documents were malformed. Each job description will include source and target information, replication id, a history of recent event, and a few other things.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
+```
 proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
 	##
+```
 
+### Get scheduler docs
+List of replication document states. Includes information about all the documents, even in completed and failed states. For each document it returns the document ID, the database, the replication ID, source and target, and other information.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
+```
 proc serverGetSchedulerDocs*(self: CouchDb, limit: int, skip: int = 0, replicatorDb: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
 	##
+```
 
+### Get scheduler docs
+Get information about replication documents from a replicator database. The default replicator database is _replicator but other replicator databases can exist if their name ends with the suffix /_replicator.
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
+```
 proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
 	##
-
+```
+```
 proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name
