@@ -1,5 +1,5 @@
 ### About
-https://github.com/zendbit/nim.couchdbapi is connection to REST API to Apache CouchDb. This helper implements all functionality except the deprecated and authentication api.
+https://github.com/zendbit/nim.couchdbapi is connection driver (REST API) to Apache CouchDb. This helper implements all functionality except the deprecated and authentication api.
 
 ### Installation
 ```
