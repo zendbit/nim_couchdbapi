@@ -268,6 +268,7 @@ proc databaseDelete*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##	https://docs.couchdb.org/en/latest/api/database/common.html
 	##
 ```
+```
 proc databasePost*(self: CouchDb, db: string, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html
@@ -295,6 +296,7 @@ proc databasePostDesignDocs*(self: CouchDb, db: string, jsonData: JsonNode, conf
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#db-design-docs
 	##
+```
 ```
 proc databasePostAllDocsQueries*(self: CouchDb, db: string, queries: JsonNode): Future[JsonNode] {.async.}
 	##
@@ -360,6 +362,7 @@ proc databaseGetChanges*(self: CouchDb, db: string, docIds: seq[string] = @[], c
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
 	##
+```
 ```
 proc databasePostChanges*(self: CouchDb, db: string, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
 	##
