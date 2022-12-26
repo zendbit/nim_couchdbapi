@@ -39,7 +39,13 @@ proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#get--
 	##
+```
 
+### Get active tasks
+List of running tasks, including the task type, name, status and process ID. The result is a JSON array of the currently running tasks, with each task being described with a single object. Depending on operation type set of response object fields might be different.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
+```
 proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
