@@ -1,5 +1,5 @@
 ### About
-[https://github.com/zendbit/nim.couchdbapi](couchdbapi)
+https://github.com/zendbit/nim.couchdbapi is connection to REST API to Apache CouchDb. This helper implements all functionality except the deprecated and authentication api.
 
 ### Installation
 ```
@@ -36,6 +36,8 @@ proc Test() {.async.} =
   ## Get database info
   echo await couchDb.serverPostDbsInfo(@["_users", "_replicator", "zendblock", "zendblock-snapshot"])
   
+if isMainModule:
+  waitFor Test()
 ```
 
 ### Create new document with attachment
