@@ -603,179 +603,447 @@ proc databaseDeleteIndex*(self: CouchDb, db: string, ddoc: string, name: string)
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
 	##
 ```
+
+### Post explain index
+Shows which index is being used by the query. Parameters are the same as _find.
+
+- see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
 ```
 proc databasePostExplain*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
 	##
+```
 
+### Get database shards
+The response will contain a list of database shards. Each shard will have its internal database range, and the nodes on which replicas of those shards are stored.
+Returns information about the specific shard into which a given document has been stored, along with information about the nodes on which that shard has a replica.
+	
+- see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
+- see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards-docid
+```
 proc databaseGetShards*(self: CouchDb, db: string, docId: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
 	##
+```
 
+### Post to sync shards to all replicas
+For the given database, force-starts internal shard synchronization for all replicas of all database shards.
+This is typically only used when performing cluster maintenance, such as moving a shard.
+
+- see https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
+```
 proc databasePostSyncShards*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
 	##
+```
 
+### Get sorted list changes document
+Returns a sorted list of changes made to documents in the database, in time order of application, can be obtained from the database’s _changes resource. Only the most recent change for a given document is guaranteed to be provided, for example if a document has had fields added, and then deleted, an API client checking for changes will not necessarily receive the intermediate state of added documents.
+
+This can be used to listen for update and modifications to the database for post processing or synchronization, and for practical purposes, a continuously connected _changes feed is a reasonable approach for generating a real-time log for most applications.
+	
+- see https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
+```
 proc databaseGetChanges*(self: CouchDb, db: string, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
 	##
+```
+	
+### Post to get sorted list canges document with larger list
+Requests the database changes feed in the same way as GET /{db}/_changes does, but is widely used with ?filter=_doc_ids query parameter and allows one to pass a larger list of document IDs to filter.
 
+- see https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
+```
 proc databasePostChanges*(self: CouchDb, db: string, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
 	##
+```
 
+### Post to compact/compress database
+Request compaction of the specified database. Compaction compresses the disk database file by performing the following operations:
+
+Writes a new, optimised, version of the database file, removing any unused sections from the new version during write. Because a new file is temporarily created for this purpose, you may require up to twice the current storage space of the specified database in order for the compaction routine to complete.
+
+Removes the bodies of any non-leaf revisions of documents from the database.
+
+Removes old revision history beyond the limit specified by the _revs_limit database parameter.
+
+Compaction can only be requested on an individual database; you cannot compact all the databases for a CouchDB instance. The compaction process runs as a background process.
+
+You can determine if the compaction process is operating on a database by obtaining the database meta information, the compact_running value of the returned database structure will be set to true. See GET /{db}.
+
+You can also obtain a list of running processes to determine whether compaction is currently running. See /_active_tasks.
+
+Compacts the view indexes associated with the specified design document. It may be that compacting a large view can return more storage than compacting the actual db. Thus, you can use this in place of the full database compaction if you know a specific set of view indexes have been affected by a recent database change.
+
+- see https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
+- see https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
+```
 proc databasePostCompact*(self: CouchDb, db: string, ddoc: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
+	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
 	##
+```
 
-proc databasePostEnsureFullCommit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
-	##
-	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
-	##
+### Post view  cleanup to remove unused view
+Removes view index files that are no longer required by CouchDB as a result of changed views within design documents. As the view filename is based on a hash of the view functions, over time old views will remain, consuming storage. This call cleans up the cached view output on disk for a given view.
 
+- https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
+```
 proc databasePostViewCleanup*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
 	##
+```
 
+### Get security option from database
+Returns the current security object from the specified database.
+
+The security object consists of two compulsory elements, admins and members, which are used to specify the list of users and/or roles that have admin and members rights to the database respectively:
+
+members: they can read all types of documents from the DB, and they can write (and edit) documents to the DB except for design documents.
+
+admins: they have all the privileges of members plus the privileges: write (and edit) design documents, add/remove database admins and members and set the database revisions limit. They can not create a database nor delete a database.
+
+Both members and admins objects contain two array-typed fields:
+
+names: List of CouchDB user names
+
+roles: List of users roles
+
+Any additional fields in the security object are optional. The entire security object is made available to validation and other internal functions so that the database can control and limit functionality.
+
+If both the names and roles fields of either the admins or members properties are empty arrays, or are not existent, it means the database has no admins or members.
+
+Having no admins, only server admins (with the reserved _admin role) are able to update design documents and make other admin level changes.
+
+Having no members or roles, any user can write regular documents (any non-design document) and read documents from the database.
+
+Since CouchDB 3.x newly created databases have by default the _admin role to prevent unintentional access.
+
+If there are any member names or roles defined for a database, then only authenticated users having a matching name or role are allowed to read documents from the database (or do a GET /{db} call).
+
+- see https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
+```
 proc databaseGetSecurity*(self: CouchDb, db:string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
 	##
+```
 
+### Put security
+Sets the security object for the given database.
+	
+- https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
+```
 proc databasePutSecurity*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
 	##
+```
 
+### Post purge to remove references
+A database purge permanently removes the references to documents in the database. Normal deletion of a document within CouchDB does not remove the document from the database, instead, the document is marked as _deleted=true (and a new revision is created). This is to ensure that deleted documents can be replicated to other databases as having been deleted. This also means that you can check the status of a document and identify that the document has been deleted by its absence.
+
+The purge request must include the document IDs, and for each document ID, one or more revisions that must be purged. Documents can be previously deleted, but it is not necessary. Revisions must be leaf revisions.
+
+The response will contain a list of the document IDs and revisions successfully purged.
+
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
+```
 proc databasePostPurge*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
 	##
+```
+	
+### Get purged infos limit from database
+Gets the current purged_infos_limit (purged documents limit) setting, the maximum number of historical purges (purged document Ids with their revisions) that can be stored in the database.
 
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
+```
 proc databaseGetPurgedInfosLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
 	##
+```
 
+### Put purge infos limit to database
+Sets the maximum number of purges (requested purged Ids with their revisions) that will be tracked in the database, even after compaction has occurred. You can set the purged documents limit on a database with a scalar integer of the limit that you want to set as the request body.
+
+The default value of historical stored purges is 1000. This means up to 1000 purges can be synchronized between replicas of the same databases in case of one of the replicas was down when purges occurred.
+
+This request sets the soft limit for stored purges. During the compaction CouchDB will try to keep only _purged_infos_limit of purges in the database, but occasionally the number of stored purges can exceed this value. If a database has not completed purge synchronization with active indexes or active internal replications, it may temporarily store a higher number of historical purges.
+
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
+```
 proc databasePutPurgedInfosLimit*(self: CouchDb, db:string, purgedInfosLimit: int): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
 	##
+```
 
+### Post missing revs
+With given a list of document revisions, returns the document revisions that do not exist in the database.
+	
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
+```
 proc databasePostMissingRevs*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
 	##
+```
 
+### Post revs diff
+Given a set of document/revision IDs, returns the subset of those that do not correspond to revisions stored in the database.
+
+Its primary use is by the replicator, as an important optimization: after receiving a set of new revision IDs from the source database, the replicator sends this set to the destination database’s _revs_diff to find out which of them already exist there. It can then avoid fetching and sending already-known document bodies.
+
+Both the request and response bodies are JSON objects whose keys are document IDs; but the values are structured differently:
+
+- In the request, a value is an array of revision IDs for that document.
+- In the response, a value is an object with a missing: key, whose value is a list of revision IDs for that document (the ones that are not stored in the database) and optionally a possible_ancestors key, whose value is an array of revision IDs that are known that might be ancestors of the missing revisions.
+
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
+```
 proc databasePostRevsDiff*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
 	##
+```
 
+### Get revs limit from database
+Gets the current revs_limit (revision limit) setting.
+
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
+```
 proc databaseGetRevsLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
 	##
+```
 
+### Put revs limit to database
+Sets the maximum number of document revisions that will be tracked by CouchDB, even after compaction has occurred. You can set the revision limit on a database with a scalar integer of the limit that you want to set as the request body.
+
+- see https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
+```
 proc databasePutRevsLimit*(self: CouchDb, db:string, revsLimit: int): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
 	##
+```
 
+### Get document
+Returns document by the specified docid from the specified db. Unless you request a specific revision, the latest revision of the document will always be returned.
+	
+- see https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
+```
 proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
 	##
+```
 
+### Put docuement
+The PUT method creates a new named document, or creates a new revision of the existing document. Unlike the POST /{db}, you must specify the document ID in the request URL.
+
+When updating an existing document, the current document revision must be included in the document (i.e. the request body), as the rev query parameter, or in the If-Match request header.
+
+- see https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
+```
 proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
 	##
+```
 
+### Put Document with attachment
+To create a document with multiple attachments with single request you need just inline base64 encoded attachments data into the document body.
+Alternatively, you can upload a document with attachments more efficiently in multipart/related format. This avoids having to Base64-encode the attachments, saving CPU and bandwidth. To do this, set the Content-Type header of the PUT /{db}/{docid} request to multipart/related.
+
+The first MIME body is the document itself, which should have its own Content-Type of application/json". It also should include an _attachments metadata object in which each attachment object has a key follows with value true.
+
+The subsequent MIME bodies are the attachments.
+
+- see https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
+```
 proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
 	##
-
+```
+	
+### Delete document
+Marks the specified document as deleted by adding a field _deleted with the value true. Documents with this field will not be returned within requests anymore, but stay in the database. You must supply the current (latest) revision, either by using the rev parameter or by using the If-Match header to specify the revision.
+	
+- see https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
+```
 proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
 	##
-	##	https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
+	##	https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
 	##
+```
 
+### Get document attachment
+Returns the file attachment associated with the document. The raw data of the associated attachment is returned (just as if you were accessing a static file. The returned Content-Type will be the same as the content type set when the document attachment was submitted into the database.
+
+- see https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
+```
 proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
 	##	support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
 	##	bytesRange = (0, 1000) -> get get from 0 to 1000 range bytes
 	##
+```
 
+### Put document attachment
+Uploads the supplied content as an attachment to the specified document. The attachment name provided must be a URL encoded string. You must supply the Content-Type header, and for an existing document you must also supply either the rev query argument or the If-Match HTTP header. If the revision is omitted, a new, otherwise empty document will be created with the provided attachment, or a conflict will occur.
+
+If case when uploading an attachment using an existing attachment name, CouchDB will update the corresponding stored content of the database. Since you must supply the revision information to add an attachment to the document, this serves as validation to update the existing attachment.
+	
+- see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
+```
 proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 	##
+```
 
+### Delete document attachment
+Deletes the attachment with filename {attname} of the specified doc. You must supply the rev query parameter or If-Match with the current revision to delete the attachment.
+	
+- see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
+```
 proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 	##
+```
 
+### Get design document view
+Executes the specified view function from the specified design document.
+
+- see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
+```
 proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 	##
+```
+	
+### Post design document view
+Executes the specified view function from the specified design document. POST view functionality supports identical parameters and behavior as specified in the GET /{db}/_design/{ddoc}/_view/{view} API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.
 
+- see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
+```
 proc designDocumentPostView*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
 	##
+```
 
+### Post design document view queries
+Executes the specified view function from the specified design document. POST view functionality supports identical parameters and behavior as specified in the GET /{db}/_design/{ddoc}/_view/{view} API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.
+
+- see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
+```
 proc designDocumentPostViewQueries*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
 	##
+```
 
+### Get design document search
+Executes a search request against the named index in the specified design document.
+
+- see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
+```
 proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
 	##
+```
 
+### Get design document search info
+- see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
+```
 proc designDocumentGetSearchInfo*(self: CouchDb, db: string, ddoc: string, index: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
 	##
+```
 
+### Post design document update func
+Executes update function on server side for null document.
+
+- see https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
+```
 proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
 	##
+```
 
-proc partitionedDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.}
+### Put design document update func
+Executes update function on server side for the specified document.
+
+- see https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
+```
+proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
+	##
+```
+
+### Get partition database
+This endpoint returns information describing the provided partition. It includes document and deleted document counts along with external and active data sizes.
+
+- see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
+```
+proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
 	##
+```
 
-proc partitionedDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+### Get partition database all docs
+- see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
+```
+proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
 	##
+```
 
-proc partitionedDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+### Get partition database design view
+- see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
+```
+proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
 	##
+```
 
+### Post partition database find
+- see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
+```
 proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
 	##
-
+```
+	
+### Post partition database explain
+- see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
+```
 proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
