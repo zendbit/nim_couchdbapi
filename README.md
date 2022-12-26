@@ -8,7 +8,7 @@ nimble install couchdbapi
 
 ### Usage
 - Create couchdb object, the jwtToken is optional, if you want to use secure connection set secure to true (default false)
-```
+```nim
 import couchdbapi
 
 
