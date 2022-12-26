@@ -1,3 +1,43 @@
+### About
+[https://github.com/zendbit/nim.couchdbapi](couchdbapi)
+
+### Installation
+```
+nimble install couchdbapi
+```
+
+### Usage
+- Create couchdb object, the jwtToken is optional, if you want to use secure connection set secure to true (default false)
+```
+import couchdbapi
+
+
+proc Test() {.async.} =
+  let couchDb = newCouchDb(
+    username = "administrator",
+    password = "administrator",
+    database = "zendblock",
+    host = "127.0.0.1",
+    port = 5984,
+    jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdG9yIiwia2lkIjoiYWRtaW5pc3RyYXRvciIsInJvbGVzIjpbIl9hZG1pbiJdfQ.NWQiPIV_yO937Uzg9YHZvFxRR8_osvLaK-lrjhOhxnM")
+
+  ## create database zendblock
+  echo await couchDb.databasePut("zendblock")
+  
+  ## create database for snapshot/replication
+  echo await couchDb.databasePut("zendblock-snapshot")
+  
+  ## replicate database from zendblock to zendblock-snapshot
+  echo await couchDb.serverPostReplicate(%*{
+    "source": "zendblock",
+    "target": "zendblock-snapshot"
+  })
+  
+  ## Get database info
+  echo await couchDb.serverPostDbsInfo(@["_users", "_replicator", "zendblock", "zendblock-snapshot"])
+  
+```
+
 ### Create new document with attachment
 ```
 proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAttachment]): Future[tuple[body: string, boundary: string, length: int]] {.async.}
