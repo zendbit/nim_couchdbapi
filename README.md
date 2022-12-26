@@ -33,6 +33,8 @@ proc newCouchDb*(
 ```
 
 ### Get server information
+Accessing the root of a CouchDB instance returns meta information about the instance. The response is a JSON structure containing information about the server, including a welcome message and the version of the server.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--
 ```
 proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
@@ -53,6 +55,8 @@ proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.}
 ```
 
 ### Get all databases in server
+Returns a list of all the databases in the CouchDB instance.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
 ```
 proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
@@ -62,6 +66,8 @@ proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNod
 ```
 
 ### Get database info
+Returns a list of all the databases information in the CouchDB instance.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
 ```
 proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, limit: int = 0, skip: int = 0): Future[JsonNode] {.async.}
@@ -71,6 +77,8 @@ proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNo
 ```
 
 ### Post to get database info
+Returns information of a list of the specified databases in the CouchDB instance. This enables you to request information about multiple databases in a single request, in place of multiple GET /{db} requests.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
 ```
 proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.async.}
@@ -80,6 +88,8 @@ proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.
 ```
 
 ### Get server cluster setup
+Returns the status of the node or cluster, per the cluster setup wizard.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
 ```
 proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_users", "_replicator"]): Future[JsonNode] {.async.}
@@ -89,6 +99,8 @@ proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_use
 ```
 
 ### Post to configure cluster, setup as node cluster
+Configure a node as a single (standalone) node, as part of a cluster, or finalise a cluster.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
 ```
 proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
@@ -231,97 +243,196 @@ The _versions resource returns a JSON object containing various system-level inf
 
 The literal string _local serves as an alias for the local node name, so for all stats URLs, {node-name} may be replaced with _local, to interact with the local node’s informations.
 
--see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
 ```
 proc serverGetNodeVersions*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
 	##
 ```
+
+### Post test lucene analyzer
+Tests the results of Lucene analyzer tokenization on sample text.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#post--_search_analyze
 ```
 proc serverPostSearchAnalyze*(self: CouchDb, field: string, text: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_search_analyze
 	##
+```
 
+### Get if server up
+Confirms that the server is up, running, and ready to respond to requests. If maintenance_mode is true or nolb, the endpoint will return a 404 response.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_up
+```
 proc serverGetUp*(self: CouchDb): Future[JsonNode] {.async.} =
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_up
 	##
+```
 
+### Get uuids
+Requests one or more Universally Unique Identifiers (UUIDs) from the CouchDB instance. The response is a JSON object providing a list of UUIDs.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_uuids
+```
 proc serverGetUUIDs*(self: CouchDb, count: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_uuids
 	##
+```
 
+### Get count of completed resharding
+Returns a count of completed, failed, running, stopped, and total jobs along with the state of resharding on the cluster.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard
+```
 proc serverGetReshard*(self: CouchDb): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard
 	##
+```
 
+### Get resharding state
+Returns the resharding state and optional information about the state.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-state
+```
 proc serverGetReshardState*(self: CouchDb): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-state
 	##
+```
 
+### Put reshard state
+Change the resharding state on the cluster. The states are stopped or running. This starts and stops global resharding on all the nodes of the cluster. If there are any running jobs, they will be stopped when the state changes to stopped. When the state changes back to running those job will continue running.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#put--_reshard-state
+```
 proc serverPutReshardState*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#put--_reshard-state
 	##
+```
 
+### Get reshard jobs
+The shape of the response and the total_rows and offset field in particular are meant to be consistent with the _scheduler/jobs endpoint.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid
+```
 proc serverGetReshardJobs*(self: CouchDb, jobId: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid
 	##
+```
 
+### Post reshard jobs
+Depending on what fields are specified in the request, one or more resharding jobs will be created. The response is a json array of results. Each result object represents a single resharding job for a particular node and range. Some of the responses could be successful and some could fail. Successful results will have the "ok": true key and and value, and failed jobs will have the "error": "{error_message}" key and value.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#post--_reshard-jobs
+```
 proc serverPostReshardJobs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_reshard-jobs
 	##
+```
 
+### Delete reshard jobs
+If the job is running, stop the job and then remove it.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#delete--_reshard-jobs-jobid
+```
 proc serverDeleteReshardJobs*(self: CouchDb, jobId: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#delete--_reshard-jobs-jobid
 	##
+```
 
+### Get reshard jobs state
+Returns the running state of a resharding job identified by jobid.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
+```
 proc serverGetReshardJobsState*(self: CouchDb, jobId: string, state: string, reason: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
 	##
+```
 
+### Put reshard jobs state
+Change the state of a particular resharding job identified by jobid. The state can be changed from stopped to running or from running to stopped. If an individual job is stopped via this API it will stay stopped even after the global resharding state is toggled from stopped to running. If the job is already completed its state will stay completed.
+
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
+```
 proc serverPutReshardJobsState*(self: CouchDb, jobId: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
 	##
+```
 
+### Get node config
+Returns the entire CouchDB server configuration as a JSON structure. The structure is organized by different configuration sections, with individual values.
+
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section-key
+```
 proc serverGetNodeConfig*(self: CouchDb, nodeName: string, section: string = "", key: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section-key
 	##
+```
 
+### Put node config
+Updates a configuration value. The new value should be supplied in the request body in the corresponding JSON format. If you are setting a string value, you must supply a valid JSON string. In response CouchDB sends old value for target section key.
+
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#put--_node-node-name-_config-section-key
+```
 proc serverPutNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string, value: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#put--_node-node-name-_config-section-key
 	##
+```
 
+### Delete node config
+Deletes a configuration value. The returned JSON will be the value of the configuration parameter before it was deleted.
+
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#delete--_node-node-name-_config-section-key
+```
 proc serverDeleteNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#delete--_node-node-name-_config-section-key
 	##
+```
 
+### Post reload node config
+Reloads the configuration from disk. This has a side effect of flushing any in-memory configuration changes that have not been committed to disk.
+
+- see https://docs.couchdb.org/en/latest/api/server/configuration.html#post--_node-node-name-_config-_reload
+```
 proc serverPostNodeConfigReload*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#post--_node-node-name-_config-_reload
 	##
+```
 
+### Get database info
+Gets information about the specified database.
+
+- see https://docs.couchdb.org/en/latest/api/database/common.html#get--db
+```
 proc databaseGetInfo*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#get--db
 	##
-
+```
+```
 proc databasePut*(self: CouchDb, db: string, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#put--db
