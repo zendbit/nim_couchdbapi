@@ -1,3 +1,4 @@
+### Create new document with attachment
 ```
 proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAttachment]): Future[tuple[body: string, boundary: string, length: int]] {.async.}
 	##
@@ -6,18 +7,9 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 	##	if the attachment not valid (fileContent) file path
 	##	it will use that content as attachment filewill
 	##
+```
 
-proc newHttpRequest*(): AsyncHttpClient
-	##
-	##	create httpclient object
-	##
-
-proc newResponseMsg*(): JsonNode
-	##
-	##	create new response msg for each request
-	##	make it standard output
-	##
-
+### Create new CouchDb object
 proc newCouchDb*(
 	username: string,
 	password: string,
@@ -37,7 +29,11 @@ proc newCouchDb*(
 	##	if jwt token exist default auth will use it
 	##	if jwt token empty will fallback into basic auth
 	##
+```
 
+### Get server information
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--
+```
 proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#get--
@@ -47,32 +43,52 @@ proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
 	##
+```
 
+### Get all databases in server
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
+```
 proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
 	##
+```
 
+### Get database info
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
+```
 proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, limit: int = 0, skip: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
 	##
+```
 
+### Post to get database info
+- see https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
+```
 proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
 	##
+```
 
+### Get server cluster setup
+- see https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
+```
 proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_users", "_replicator"]): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
 	##
+```
 
+### Post to configure cluster, setup as node cluster
+- see https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
+```
 proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
 	##
-
+```
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
