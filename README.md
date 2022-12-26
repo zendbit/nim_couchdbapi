@@ -10,6 +10,7 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 ```
 
 ### Create new CouchDb object
+```
 proc newCouchDb*(
 	username: string,
 	password: string,
@@ -88,6 +89,7 @@ proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode
 	##
 	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
 	##
+```
 ```
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.}
 	##
