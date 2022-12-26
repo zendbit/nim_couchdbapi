@@ -93,6 +93,7 @@ proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode
 
 ### Get database updates
 Returns a list of all database events in the CouchDB instance. The existence of the _global_changes database is required to use this endpoint.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
 ```
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.}
@@ -103,6 +104,7 @@ proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 
 
 ### Get nodes in cluster
 Displays the nodes that are part of the cluster as cluster_nodes. The field all_nodes displays all nodes this node knows about, including the ones that are part of the cluster. The endpoint is useful when setting up a cluster.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 ```
 proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.}
@@ -113,6 +115,7 @@ proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.}
 
 ### Replicate database between node or local server
 Request, configure, or stop, a replication operation.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 ```
 proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
@@ -123,6 +126,7 @@ proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {
 
 ### Get scheduler jobs
 List of replication jobs. Includes replications created via /_replicate endpoint as well as those created from replication documents. Does not include replications which have completed or have failed to start because replication documents were malformed. Each job description will include source and target information, replication id, a history of recent event, and a few other things.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
 ```
 proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[JsonNode] {.async.}
@@ -133,6 +137,7 @@ proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[J
 
 ### Get scheduler docs
 List of replication document states. Includes information about all the documents, even in completed and failed states. For each document it returns the document ID, the database, the replication ID, source and target, and other information.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
 ```
@@ -145,6 +150,7 @@ proc serverGetSchedulerDocs*(self: CouchDb, limit: int, skip: int = 0, replicato
 
 ### Get scheduler docs
 Get information about replication documents from a replicator database. The default replicator database is _replicator but other replicator databases can exist if their name ends with the suffix /_replicator.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
 ```
 proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string): Future[JsonNode] {.async.}
@@ -155,6 +161,7 @@ proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string)
 
 ### Get node
 The /_node/{node-name} endpoint can be used to confirm the Erlang node name of the server that processes the request. This is most useful when accessing /_node/_local to retrieve this information. Repeatedly retrieving this information for a CouchDB endpoint can be useful to determine if a CouchDB cluster is correctly proxied through a reverse load balancer.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name
 ```
 proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
@@ -165,8 +172,11 @@ proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
 
 ### Get node state
 The _stats resource returns a JSON object containing the statistics for the running server. The object is structured with top-level sections collating the statistics for a range of entries, with each individual statistic being easily identified, and the content of each statistic is self-describing.
+
 Statistics are sampled internally on a configurable interval. When monitoring the _stats endpoint, you need to use a polling frequency of at least twice this to observe accurate results. For example, if the interval is 10 seconds, poll _stats at least every 5 seconds.
+
 The literal string _local serves as an alias for the local node name, so for all stats URLs, {node-name} may be replaced with _local, to interact with the local node’s statistics.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_stats
 ```
 proc serverGetNodeStats*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
@@ -177,6 +187,7 @@ proc serverGetNodeStats*(self: CouchDb, nodeName: string): Future[JsonNode] {.as
 
 ### Get node in prometheus format
 The _prometheus resource returns a text/plain response that consolidates our /_node/{node-name}/_stats, and /_node/{node-name}/_system endpoints. The format is determined by Prometheus. The format version is 2.0.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_prometheus
 ```
 proc serverGetNodePrometheus*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
@@ -187,7 +198,9 @@ proc serverGetNodePrometheus*(self: CouchDb, nodeName: string): Future[JsonNode]
 
 ### Get node system
 The _system resource returns a JSON object containing various system-level statistics for the running server. The object is structured with top-level sections collating the statistics for a range of entries, with each individual statistic being easily identified, and the content of each statistic is self-describing.
+
 The literal string _local serves as an alias for the local node name, so for all stats URLs, {node-name} may be replaced with _local, to interact with the local node’s statistics.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_system
 ```
 proc serverGetNodeSystem*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
@@ -197,7 +210,8 @@ proc serverGetNodeSystem*(self: CouchDb, nodeName: string): Future[JsonNode] {.a
 ```
 
 ### Post to restart node
-This API is to facilitate integration testing only it is not meant to be used in production
+This API is to facilitate integration testing only it is not meant to be used in production.
+
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_node-node-name-_restart
 ```
 proc serverPostNodeRestart*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
@@ -208,7 +222,9 @@ proc serverPostNodeRestart*(self: CouchDb, nodeName: string): Future[JsonNode] {
 
 ### Get node versions
 The _versions resource returns a JSON object containing various system-level informations for the running server.
+
 The literal string _local serves as an alias for the local node name, so for all stats URLs, {node-name} may be replaced with _local, to interact with the local node’s informations.
+
 -see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
 ```
 proc serverGetNodeVersions*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
