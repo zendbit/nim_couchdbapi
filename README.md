@@ -16,25 +16,25 @@ proc Test() {.async.} =
   let couchDb = newCouchDb(
     username = "administrator",
     password = "administrator",
-    database = "zendblock",
+    databasePrefix = "zendblock",
     host = "127.0.0.1",
     port = 5984,
     jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdG9yIiwia2lkIjoiYWRtaW5pc3RyYXRvciIsInJvbGVzIjpbIl9hZG1pbiJdfQ.NWQiPIV_yO937Uzg9YHZvFxRR8_osvLaK-lrjhOhxnM")
 
-  ## create database zendblock
-  echo await couchDb.databasePut("zendblock")
+  ## create database zendblock/users
+  echo await couchDb.databasePut("users")
   
-  ## create database for snapshot/replication
-  echo await couchDb.databasePut("zendblock-snapshot")
+  ## create database zendblock/users-snapshot for snapshot/replication
+  echo await couchDb.databasePut("users-snapshot")
   
-  ## replicate database from zendblock to zendblock-snapshot
+  ## replicate database from zendblock/users to zendblock/users-snapshot
   echo await couchDb.serverPostReplicate(%*{
-    "source": "zendblock",
-    "target": "zendblock-snapshot"
+    "source": "users",
+    "target": "users-snapshot"
   })
   
   ## Get database info
-  echo await couchDb.serverPostDbsInfo(@["_users", "_replicator", "zendblock", "zendblock-snapshot"])
+  echo await couchDb.serverPostDbsInfo(@["_users", "_replicator", "zendblock/users", "zendblock/users-snapshot"])
   
 if isMainModule:
   waitFor Test()
