@@ -16,7 +16,6 @@ proc Test() {.async.} =
   let couchDb = newCouchDb(
     username = "administrator",
     password = "administrator",
-    database = "zendblock",
     host = "127.0.0.1",
     port = 5984,
     jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdG9yIiwia2lkIjoiYWRtaW5pc3RyYXRvciIsInJvbGVzIjpbIl9hZG1pbiJdfQ.NWQiPIV_yO937Uzg9YHZvFxRR8_osvLaK-lrjhOhxnM")
@@ -53,7 +52,6 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 proc newCouchDb*(
 	username: string,
 	password: string,
-	database: string,
 	host: string,
 	port: int,
 	jwtToken: string = "",
@@ -466,7 +464,7 @@ Gets information about the specified database.
 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#get--db
 ```nim
-proc databaseGetInfo*(self: CouchDb): Future[JsonNode] {.async.}
+proc databaseGetInfo*(self: CouchDb,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#get--db
 	##
@@ -484,7 +482,7 @@ If you’re familiar with Regular Expressions, the rules above could be written 
 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#put--db
 ```nim
-proc databasePut*(self: CouchDb, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.}
+proc databasePut*(self: CouchDb,db: string, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#put--db
 	##
@@ -495,7 +493,7 @@ Deletes the specified database, and all the documents and attachments contained 
 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
 ```nim
-proc databaseDelete*(self: CouchDb): Future[JsonNode] {.async.}
+proc databaseDelete*(self: CouchDb,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
 	##
@@ -510,7 +508,7 @@ If the _id field is not specified, a new unique ID will be generated, following 
 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#post--db
 ```nim
-proc databasePost*(self: CouchDb, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.}
+proc databasePost*(self: CouchDb, document: JsonNode,db: string, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/common.html#post--db
 	##
@@ -521,7 +519,7 @@ Executes the built-in _all_docs view, returning all of the documents in the data
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
 ```nim
-proc databaseGetAllDocs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc databaseGetAllDocs*(self: CouchDb,db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
 	##
@@ -532,7 +530,7 @@ POST _all_docs functionality supports identical parameters and behavior as speci
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
 ```nim
-proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode,db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
 	##
@@ -543,7 +541,7 @@ Returns a JSON structure of all of the design documents in a given database. The
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
 ```nim
-proc databaseGetDesignDocs*(self: CouchDb, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc databaseGetDesignDocs*(self: CouchDb,db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
 	##
@@ -554,7 +552,7 @@ POST _design_docs functionality supports identical parameters and behavior as sp
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
 ```nim
-proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode,db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
 	##
@@ -565,7 +563,7 @@ Executes multiple specified built-in view queries of all documents in this datab
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
 ```nim
-proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode): Future[JsonNode] {.async.}
+proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
 	##
@@ -576,7 +574,7 @@ This method can be called to query several documents in bulk. It is well suited 
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
 ```nim
-proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode, revs: bool = true): Future[JsonNode] {.async.}
+proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode,db: string, revs: bool = true): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
 	##
@@ -593,7 +591,7 @@ In case of batch deleting documents all fields as document ID, revision informat
 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
 ```nim
-proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
 	##
@@ -604,7 +602,7 @@ Find documents using a declarative JSON querying syntax. Queries will use custom
 
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
 ```nim
-proc databasePostFind*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePostFind*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
 	##
@@ -617,7 +615,7 @@ Create a new index on a database.
 
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
 ```nim
-proc databasePostIndex*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePostIndex*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
 	##
@@ -628,7 +626,7 @@ When you make a GET request to /db/_index, you get a list of all indexes in the 
 
 - see https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
 ```nim
-proc databaseGetIndex*(self: CouchDb, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc databaseGetIndex*(self: CouchDb,db: string, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
 	##
@@ -637,7 +635,7 @@ proc databaseGetIndex*(self: CouchDb, skip: int = 0, limit: int = 0): Future[Jso
 ### Delete index from database
 - see https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
 ```nim
-proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string): Future[JsonNode] {.async.}
+proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
 	##
@@ -648,7 +646,7 @@ Shows which index is being used by the query. Parameters are the same as _find.
 
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
 ```nim
-proc databasePostExplain*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePostExplain*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
 	##
@@ -661,7 +659,7 @@ Returns information about the specific shard into which a given document has bee
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards-docid
 ```nim
-proc databaseGetShards*(self: CouchDb, docId: string = ""): Future[JsonNode] {.async.}
+proc databaseGetShards*(self: CouchDb, docId: string = "",db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
 	##
@@ -673,7 +671,7 @@ This is typically only used when performing cluster maintenance, such as moving 
 
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
 ```nim
-proc databasePostSyncShards*(self: CouchDb): Future[JsonNode] {.async.}
+proc databasePostSyncShards*(self: CouchDb,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
 	##
@@ -686,7 +684,7 @@ This can be used to listen for update and modifications to the database for post
 	
 - see https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
 ```nim
-proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
+proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[],db: string, conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
 	##
@@ -697,7 +695,7 @@ Requests the database changes feed in the same way as GET /{db}/_changes does, b
 
 - see https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
 ```nim
-proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
+proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string] = @[],db: string, conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
 	##
@@ -723,7 +721,7 @@ Compacts the view indexes associated with the specified design document. It may 
 - see https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
 - see https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
 ```nim
-proc databasePostCompact*(self: CouchDb, ddoc: string = ""): Future[JsonNode] {.async.}
+proc databasePostCompact*(self: CouchDb, ddoc: string = "",db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
 	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
@@ -735,7 +733,7 @@ Removes view index files that are no longer required by CouchDB as a result of c
 
 - https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
 ```nim
-proc databasePostViewCleanup*(self: CouchDb): Future[JsonNode] {.async.}
+proc databasePostViewCleanup*(self: CouchDb,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
 	##
@@ -781,7 +779,7 @@ Sets the security object for the given database.
 	
 - https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
 ```nim
-proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
 	##
@@ -796,7 +794,7 @@ The response will contain a list of the document IDs and revisions successfully 
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
 ```nim
-proc databasePostPurge*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc databasePostPurge*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
 	##
@@ -807,7 +805,7 @@ Gets the current purged_infos_limit (purged documents limit) setting, the maximu
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
 ```nim
-proc databaseGetPurgedInfosLimit*(self: CouchDb): Future[JsonNode] {.async.}
+proc databaseGetPurgedInfosLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
 	##
@@ -862,7 +860,7 @@ Gets the current revs_limit (revision limit) setting.
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
 ```nim
-proc databaseGetRevsLimit*(self: CouchDb): Future[JsonNode] {.async.}
+proc databaseGetRevsLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
 	##
@@ -884,7 +882,7 @@ Returns document by the specified docid from the specified db. Unless you reques
 	
 - see https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
 ```nim
-proc documentGet*(self: CouchDb, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
+proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
 	##
@@ -897,7 +895,7 @@ When updating an existing document, the current document revision must be includ
 
 - see https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
 ```nim
-proc documentPut*(self: CouchDb, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
 	##
@@ -913,7 +911,7 @@ The subsequent MIME bodies are the attachments.
 
 - see https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
 ```nim
-proc documentPut*(self: CouchDb, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
 	##
@@ -924,7 +922,7 @@ Marks the specified document as deleted by adding a field _deleted with the valu
 	
 - see https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
 ```nim
-proc documentDelete*(self: CouchDb, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
 	##
@@ -935,7 +933,7 @@ Returns the file attachment associated with the document. The raw data of the as
 
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
 ```nim
-proc documentGetAttachment*(self: CouchDb, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
+proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
 	##	support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
@@ -950,7 +948,7 @@ If case when uploading an attachment using an existing attachment name, CouchDB 
 	
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
-proc documentPutAttachment*(self: CouchDb, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
+proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 	##
@@ -961,7 +959,7 @@ Deletes the attachment with filename {attname} of the specified doc. You must su
 	
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
-proc documentDeleteAttachment*(self: CouchDb, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 	##
@@ -972,7 +970,7 @@ Executes the specified view function from the specified design document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 ```nim
-proc designDocumentGetView*(self: CouchDb, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
+proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 	##
@@ -983,7 +981,7 @@ Executes the specified view function from the specified design document. POST vi
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
 ```nim
-proc designDocumentPostView*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc designDocumentPostView*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
 	##
@@ -994,7 +992,7 @@ Executes the specified view function from the specified design document. POST vi
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
 ```nim
-proc designDocumentPostViewQueries*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc designDocumentPostViewQueries*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
 	##
@@ -1005,7 +1003,7 @@ Executes a search request against the named index in the specified design docume
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
 ```nim
-proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
+proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
 	##
@@ -1014,7 +1012,7 @@ proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookma
 ### Get design document search info
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
 ```nim
-proc designDocumentGetSearchInfo*(self: CouchDb, ddoc: string, index: string): Future[JsonNode] {.async.}
+proc designDocumentGetSearchInfo*(self: CouchDb, db: string, ddoc: string, index: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
 	##
@@ -1025,7 +1023,7 @@ Executes update function on server side for null document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
 ```nim
-proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
+proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
 	##
@@ -1036,7 +1034,7 @@ Executes update function on server side for the specified document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
 ```nim
-proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
+proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
 	##
@@ -1047,7 +1045,7 @@ This endpoint returns information describing the provided partition. It includes
 
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
 ```nim
-proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {.async.}
+proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
 	##
@@ -1056,7 +1054,7 @@ proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {
 ### Get partition database all docs
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
 ```nim
-proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
 	##
@@ -1065,7 +1063,7 @@ proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: 
 ### Get partition database design view
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
 ```nim
-proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
 	##
@@ -1074,7 +1072,7 @@ proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: str
 ### Post partition database find
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
 ```nim
-proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
 	##
@@ -1083,7 +1081,7 @@ proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: Json
 ### Post partition database explain
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
 ```nim
-proc partitionDatabasePostExplain*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
 	##
 	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
 	##
