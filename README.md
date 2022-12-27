@@ -1089,7 +1089,7 @@ proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string,
 
 ### Get design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc
-```
+```nim
 proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc
@@ -1098,7 +1098,7 @@ proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bo
 
 ### Put design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
-```
+```nim
 proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
@@ -1107,7 +1107,7 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
 
 ### Put design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
-```
+```nim
 proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
@@ -1116,7 +1116,7 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
 
 ### Delete design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc
-```
+```nim
 proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc
@@ -1125,7 +1125,7 @@ proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string,
 
 ### Get design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-attname
-```
+```nim
 proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-attname
@@ -1136,7 +1136,7 @@ proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attac
 
 ### Put design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc-attname
-```
+```nim
 proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc-attname
@@ -1145,7 +1145,7 @@ proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attac
 
 ### Delete design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc-attname
-```
+```nim
 proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc-attname
@@ -1154,7 +1154,7 @@ proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, at
 
 ### Get design document info
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
-```
+```nim
 proc designDocumentGetInfo*(self: CouchDb, db: string, ddoc: string): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
