@@ -811,7 +811,7 @@ Gets the current purged_infos_limit (purged documents limit) setting, the maximu
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
 ```nim
-proc databaseGetPurgedInfosLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
+proc databaseGetPurgedInfosLimit*(self: CouchDb): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
     ##
@@ -866,7 +866,7 @@ Gets the current revs_limit (revision limit) setting.
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
 ```nim
-proc databaseGetRevsLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
+proc databaseGetRevsLimit*(self: CouchDb): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
     ##
@@ -888,7 +888,7 @@ Returns document by the specified docid from the specified db. Unless you reques
     
 - see https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
 ```nim
-proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
+proc documentGet*(self: CouchDb, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
     ##
@@ -901,7 +901,7 @@ When updating an existing document, the current document revision must be includ
 
 - see https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
 ```nim
-proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc documentPut*(self: CouchDb, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
     ##
@@ -917,7 +917,7 @@ The subsequent MIME bodies are the attachments.
 
 - see https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
 ```nim
-proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc documentPut*(self: CouchDb, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
     ##
@@ -928,7 +928,7 @@ Marks the specified document as deleted by adding a field _deleted with the valu
     
 - see https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
 ```nim
-proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc documentDelete*(self: CouchDb, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
     ##
@@ -939,7 +939,7 @@ Returns the file attachment associated with the document. The raw data of the as
 
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
 ```nim
-proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
+proc documentGetAttachment*(self: CouchDb, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
     ##  support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
@@ -954,7 +954,7 @@ If case when uploading an attachment using an existing attachment name, CouchDB 
     
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
-proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
+proc documentPutAttachment*(self: CouchDb, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
     ##
@@ -965,7 +965,7 @@ Deletes the attachment with filename {attname} of the specified doc. You must su
     
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
-proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc documentDeleteAttachment*(self: CouchDb, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
     ##
@@ -976,7 +976,7 @@ Executes the specified view function from the specified design document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 ```nim
-proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
+proc designDocumentGetView*(self: CouchDb, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
     ##
@@ -987,7 +987,7 @@ Executes the specified view function from the specified design document. POST vi
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
 ```nim
-proc designDocumentPostView*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc designDocumentPostView*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
     ##
@@ -998,7 +998,7 @@ Executes the specified view function from the specified design document. POST vi
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
 ```nim
-proc designDocumentPostViewQueries*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc designDocumentPostViewQueries*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
     ##
@@ -1009,7 +1009,7 @@ Executes a search request against the named index in the specified design docume
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
 ```nim
-proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
+proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
     ##
@@ -1018,7 +1018,7 @@ proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: st
 ### Get design document search info
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
 ```nim
-proc designDocumentGetSearchInfo*(self: CouchDb, db: string, ddoc: string, index: string): Future[JsonNode] {.async.}
+proc designDocumentGetSearchInfo*(self: CouchDb, ddoc: string, index: string): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
     ##
@@ -1029,7 +1029,7 @@ Executes update function on server side for null document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
 ```nim
-proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
+proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
     ##
@@ -1040,7 +1040,7 @@ Executes update function on server side for the specified document.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
 ```nim
-proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
+proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
     ##
@@ -1051,7 +1051,7 @@ This endpoint returns information describing the provided partition. It includes
 
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
 ```nim
-proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.}
+proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
     ##
@@ -1060,7 +1060,7 @@ proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future
 ### Get partition database all docs
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
 ```nim
-proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
     ##
@@ -1069,7 +1069,7 @@ proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, 
 ### Get partition database design view
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
 ```nim
-proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
+proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
     ##
@@ -1078,7 +1078,7 @@ proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: strin
 ### Post partition database find
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
 ```nim
-proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
     ##
@@ -1087,7 +1087,7 @@ proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, js
 ### Post partition database explain
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
 ```nim
-proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
+proc partitionDatabasePostExplain*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
     ##
     ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
     ##
@@ -1096,7 +1096,7 @@ proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string,
 ### Get design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc
 ```nim
-proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
+proc designDocumentGet*(self: CouchDb, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc
   ##
@@ -1105,7 +1105,7 @@ proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bo
 ### Put design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 ```nim
-proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
   ##
@@ -1114,7 +1114,7 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
 ### Put design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 ```nim
-proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
+proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
   ##
@@ -1123,7 +1123,7 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
 ### Delete design document
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc
 ```nim
-proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc designDocumentDelete*(self: CouchDb, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc
   ##
@@ -1132,7 +1132,7 @@ proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string,
 ### Get design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-attname
 ```nim
-proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
+proc designDocumentGetAttachment*(self: CouchDb, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-attname
   ##  support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
@@ -1143,7 +1143,7 @@ proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attac
 ### Put design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc-attname
 ```nim
-proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
+proc designDocumentPutAttachment*(self: CouchDb, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc-attname
   ##
@@ -1152,7 +1152,7 @@ proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attac
 ### Delete design document attachment
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc-attname
 ```nim
-proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
+proc designDocumentDeleteAttachment*(self: CouchDb, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc-attname
   ##
@@ -1161,7 +1161,7 @@ proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, at
 ### Get design document info
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
 ```nim
-proc designDocumentGetInfo*(self: CouchDb, db: string, ddoc: string): Future[JsonNode] {.async.}
+proc designDocumentGetInfo*(self: CouchDb, ddoc: string): Future[JsonNode] {.async.}
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
   ##
