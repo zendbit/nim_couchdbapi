@@ -75,6 +75,14 @@ proc newCouchDb*(
     ##
 ```
 
+### Switch default database for entire operation
+```
+proc switchDatabase*(self: CouchDb, database: string) =
+  ##
+  ##  switch to default database name for operation
+  ##
+```
+
 ### Get server information
 Accessing the root of a CouchDB instance returns meta information about the instance. The response is a JSON structure containing information about the server, including a welcome message and the version of the server.
 
