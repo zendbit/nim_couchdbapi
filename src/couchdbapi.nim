@@ -43,6 +43,7 @@ type
     secure*: bool
     url*: string
     client*: AsyncHttpClient
+    database*: string
 
   ##
   ##  For attachment to document
@@ -174,6 +175,12 @@ proc newCouchDb*(
 
   else:
     result.url = &"http://{host}:{port}"
+
+proc switchDatabase*(self: CouchDb, database: string) =
+  ##
+  ##  switch to default database name for operation
+  ##
+  self.database = database
 
 proc prepareRequestHeaders(self: CouchDb, useBasicAuth: bool = false) =
   ##
@@ -628,39 +635,39 @@ proc serverPostNodeConfigReload*(self: CouchDb, nodeName: string): Future[JsonNo
   
   result = await res.toResponseMsg
 
-proc databaseGetInfo*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databaseGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/common.html#get--db
   ##
   
   self.prepareRequestHeaders()
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}")
   result = await res.toResponseMsg
 
-proc databasePut*(self: CouchDb, db: string, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.} =
+proc databasePut*(self: CouchDb, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/common.html#put--db
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}?q={shards}&n={replicas}&partitioned={partitioned}")
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}?q={shards}&n={replicas}&partitioned={partitioned}")
   
   result = await res.toResponseMsg
 
 
-proc databaseDelete*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databaseDelete*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}")
   
   result = await res.toResponseMsg
 
-proc databasePost*(self: CouchDb, db: string, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.} =
+proc databasePost*(self: CouchDb, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/common.html#post--db
   ##
@@ -669,11 +676,11 @@ proc databasePost*(self: CouchDb, db: string, document: JsonNode, batch: bool = 
   
   var qstring = ""
   if batch: qstring &= "?batch=ok"
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}", $document)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}", $document)
   
   result = await res.toResponseMsg
 
-proc databaseGetAllDocs*(self: CouchDb, db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc databaseGetAllDocs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
   ##
@@ -686,11 +693,11 @@ proc databaseGetAllDocs*(self: CouchDb, db: string, descending: bool = false, st
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_all_docs{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_all_docs{qstring}")
   
   result = await res.toResponseMsg
 
-proc databasePostAllDocs*(self: CouchDb, db: string, jsonData: JsonNode, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
   ##
@@ -703,11 +710,11 @@ proc databasePostAllDocs*(self: CouchDb, db: string, jsonData: JsonNode, descend
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_all_docs{qstring}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_all_docs{qstring}", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databaseGetDesignDocs*(self: CouchDb, db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc databaseGetDesignDocs*(self: CouchDb, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
   ##
@@ -727,11 +734,11 @@ proc databaseGetDesignDocs*(self: CouchDb, db: string, conflicts: bool = false, 
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design_docs{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design_docs{qstring}")
   
   result = await res.toResponseMsg
 
-proc databasePostDesignDocs*(self: CouchDb, db: string, jsonData: JsonNode, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
   ##
@@ -751,66 +758,66 @@ proc databasePostDesignDocs*(self: CouchDb, db: string, jsonData: JsonNode, conf
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_design_docs{qstring}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design_docs{qstring}", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostAllDocsQueries*(self: CouchDb, db: string, queries: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_all_docs/queries", $queries)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_all_docs/queries", $queries)
   
   result = await res.toResponseMsg
 
-proc databasePostBulkGet*(self: CouchDb, db: string, jsonData: JsonNode, revs: bool = true): Future[JsonNode] {.async.} =
+proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode, revs: bool = true): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_bulk_get?revs={revs}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_bulk_get?revs={revs}", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostBulkDocs*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_bulk_docs", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_bulk_docs", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostFind*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostFind*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_find", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_find", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostIndex*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostIndex*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_index", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_index", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databaseGetIndex*(self: CouchDb, db: string, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc databaseGetIndex*(self: CouchDb, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
   ##
@@ -822,33 +829,33 @@ proc databaseGetIndex*(self: CouchDb, db: string, skip: int = 0, limit: int = 0)
   if limit != 0: qstring &= &"&limit={limit}"
   if qstring != "": qstring = "?" & qstring[1 .. (qstring.len() - 1)]
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_index{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_index{qstring}")
   
   result = await res.toResponseMsg
 
-proc databaseDeleteIndex*(self: CouchDb, db: string, ddoc: string, name: string): Future[JsonNode] {.async.} =
+proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}/_index/{ddoc.encodeUrl}/json/{name.encodeUrl}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_index/{ddoc.encodeUrl}/json/{name.encodeUrl}")
   
   result = await res.toResponseMsg
 
-proc databasePostExplain*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostExplain*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_explain", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_explain", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databaseGetShards*(self: CouchDb, db: string, docId: string = ""): Future[JsonNode] {.async.} =
+proc databaseGetShards*(self: CouchDb, docId: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
   ##  https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards-docid
@@ -860,22 +867,22 @@ proc databaseGetShards*(self: CouchDb, db: string, docId: string = ""): Future[J
   if docId != "":
     qstring = &"/{docId.encodeUrl}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_shards{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_shards{qstring}")
   
   result = await res.toResponseMsg
 
-proc databasePostSyncShards*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databasePostSyncShards*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_sync_shards")
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_sync_shards")
   
   result = await res.toResponseMsg
 
-proc databaseGetChanges*(self: CouchDb, db: string, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
+proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
   ##
@@ -899,11 +906,11 @@ proc databaseGetChanges*(self: CouchDb, db: string, docIds: seq[string] = @[], c
   if view != "": qstring &= &"&view={view}"
   if seqInterval != 0: qstring &= &"&seq_interval={seqInterval}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_changes{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_changes{qstring}")
   
   result = await res.toResponseMsg
 
-proc databasePostChanges*(self: CouchDb, db: string, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
+proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
   ##
@@ -927,11 +934,11 @@ proc databasePostChanges*(self: CouchDb, db: string, jsonData: JsonNode, docIds:
   if view != "": qstring &= &"&view={view}"
   if seqInterval != 0: qstring &= &"&seq_interval={seqInterval}"
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_changes{qstring}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_changes{qstring}", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostCompact*(self: CouchDb, db: string, ddoc: string = ""): Future[JsonNode] {.async.} =
+proc databasePostCompact*(self: CouchDb, ddoc: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
   ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
@@ -942,121 +949,121 @@ proc databasePostCompact*(self: CouchDb, db: string, ddoc: string = ""): Future[
   var qstring = ""
   if ddoc != "": qstring = &"/{ddoc}"
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_compact{qstring}")
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_compact{qstring}")
   
   result = await res.toResponseMsg
 
-proc databasePostViewCleanup*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databasePostViewCleanup*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_view_cleanup")
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_view_cleanup")
   
   result = await res.toResponseMsg
 
-proc databaseGetSecurity*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databaseGetSecurity*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
   ##
   
   self.prepareRequestHeaders()
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_security")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_security")
   
   result = await res.toResponseMsg
 
-proc databasePutSecurity*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_security", $jsonData)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_security", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostPurge*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostPurge*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_purge", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_purge", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databaseGetPurgedInfosLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databaseGetPurgedInfosLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
   ##
   
   self.prepareRequestHeaders(useBasicAuth = true)
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_purged_infos_limit")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_purged_infos_limit")
   
   result = await res.toResponseMsg
 
-proc databasePutPurgedInfosLimit*(self: CouchDb, db: string, purgedInfosLimit: int): Future[JsonNode] {.async.} =
+proc databasePutPurgedInfosLimit*(self: CouchDb, purgedInfosLimit: int): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
   ##
   
   self.prepareRequestPostJsonHeaders(useBasicAuth = true)
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_purged_infos_limit", $ %purgedInfosLimit)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_purged_infos_limit", $ %purgedInfosLimit)
   
   result = await res.toResponseMsg
 
-proc databasePostMissingRevs*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostMissingRevs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_missing_revs", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_missing_revs", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databasePostRevsDiff*(self: CouchDb, db: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc databasePostRevsDiff*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_revs_diff", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_revs_diff", $jsonData)
   
   result = await res.toResponseMsg
 
-proc databaseGetRevsLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.} =
+proc databaseGetRevsLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
   ##
   
   self.prepareRequestHeaders()
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_revs_limit")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_revs_limit")
   
   result = await res.toResponseMsg
 
-proc databasePutRevsLimit*(self: CouchDb, db: string, revsLimit: int): Future[JsonNode] {.async.} =
+proc databasePutRevsLimit*(self: CouchDb, revsLimit: int): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
   ##
   
   self.prepareRequestPostJsonHeaders()
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_revs_limit", $ %revsLimit)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_revs_limit", $ %revsLimit)
   
   result = await res.toResponseMsg
 
-proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
+proc documentGet*(self: CouchDb, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
   ##
@@ -1076,11 +1083,11 @@ proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = 
   qstring &= &"&revs={revs}"
   qstring &= &"&revsInfo={revsInfo}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
+proc documentPut*(self: CouchDb, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
   ##
@@ -1091,11 +1098,11 @@ proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev:
   if rev != "": qstring &= "&rev={rev}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}{qstring}", $data)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}", $data)
   
   result = await res.toResponseMsg
 
-proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
+proc documentPut*(self: CouchDb, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
   ##
@@ -1109,11 +1116,11 @@ proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, atta
   if rev != "": qstring &= &"&rev={rev}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}{qstring}", docAttachments.body)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}", docAttachments.body)
   
   result = await res.toResponseMsg
 
-proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
+proc documentDelete*(self: CouchDb, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
   ##
@@ -1123,11 +1130,11 @@ proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batc
   var qstring = &"?rev={rev.encodeUrl}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}{qstring}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
+proc documentGetAttachment*(self: CouchDb, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
   ##  support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
@@ -1141,11 +1148,11 @@ proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment
   var qstring = ""
   if rev != "": qstring = &"?rev={rev}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}/{attachment.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachment.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
+proc documentPutAttachment*(self: CouchDb, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
   ##
@@ -1162,11 +1169,11 @@ proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachment
     fileContent = await fileAsync.readAll
     fileAsync.close
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
   
   result = await res.toResponseMsg
 
-proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
+proc documentDeleteAttachment*(self: CouchDb, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
   ##
@@ -1176,11 +1183,11 @@ proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachm
   var qstring = &"?rev={rev}"
   if batch: qstring = "&batch=ok"
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.} =
+proc designDocumentGetView*(self: CouchDb, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
   ##
@@ -1210,33 +1217,33 @@ proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: strin
   qstring &= &"&update={update}"
   qstring &= &"&update_seq={updateSeq}"
 
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentPostView*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc designDocumentPostView*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
   ##
   
   self.prepareRequestPostJsonHeaders()
 
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
 
-proc designDocumentPostViewQueries*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc designDocumentPostViewQueries*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
   ##
   
   self.prepareRequestPostJsonHeaders()
 
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}/queries", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}/queries", $jsonData)
 
   result = await res.toResponseMsg
 
-proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.} =
+proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
   ##
@@ -1260,55 +1267,55 @@ proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: st
   if not sort.isNil: qstring &= &"&sort={encodeUrl($sort)}"
   if stale != "": qstring &= &"&stale={stale.encodeUrl}"
 
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_search/{index.encodeUrl}{qstring}")
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_search/{index.encodeUrl}{qstring}")
 
   result = await res.toResponseMsg
 
-proc designDocumentGetSearchInfo*(self: CouchDb, db: string, ddoc: string, index: string): Future[JsonNode] {.async.} =
+proc designDocumentGetSearchInfo*(self: CouchDb, ddoc: string, index: string): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
   ##
   
   self.prepareRequestHeaders()
 
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_search_info/{index.encodeUrl}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_search_info/{index.encodeUrl}")
 
   result = await res.toResponseMsg
 
-proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
+proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
   ##
   
   self.prepareRequestPostJsonHeaders()
 
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
 
-proc designDocumentPutUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
+proc designDocumentPutUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
   ##
   
   self.prepareRequestPostJsonHeaders()
 
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}/{docId.encodeUrl}", $jsonData)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}/{docId.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
 
-proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.} =
+proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
   ##
   
   self.prepareRequestHeaders()
 
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_partition/{partition.encodeUrl}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}")
 
   result = await res.toResponseMsg
 
-proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
   ##
@@ -1321,11 +1328,11 @@ proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, 
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_partition/{partition.encodeUrl}/_all_docs{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_all_docs{qstring}")
   
   result = await res.toResponseMsg
 
-proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
+proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
   ##
@@ -1338,11 +1345,11 @@ proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: strin
   if skip != 0: qstring &= &"&skip={skip}"
   if limit != 0: qstring &= &"&limit={limit}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_partition/{partition.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
   ##
@@ -1350,11 +1357,11 @@ proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, js
   self.prepareRequestPostJsonHeaders()
   
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_partition/{partition.encodeUrl}/_find", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_find", $jsonData)
   
   result = await res.toResponseMsg
 
-proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
+proc partitionDatabasePostExplain*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
   ##
@@ -1362,11 +1369,11 @@ proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string,
   self.prepareRequestPostJsonHeaders()
   
   ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
-  let res = await self.client.post(&"{self.url}/{db.encodeUrl}/_partition/{partition.encodeUrl}/_explain", $jsonData)
+  let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_explain", $jsonData)
   
   result = await res.toResponseMsg
 
-proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
+proc designDocumentGet*(self: CouchDb, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc
   ##
@@ -1386,11 +1393,11 @@ proc designDocumentGet*(self: CouchDb, db: string, ddoc: string, attachments: bo
   qstring &= &"&revs={revs}"
   qstring &= &"&revsInfo={revsInfo}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
+proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
   ##
@@ -1401,11 +1408,11 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
   if rev != "": qstring &= "&rev={rev}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", $data)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", $data)
   
   result = await res.toResponseMsg
 
-proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
+proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
   ##
@@ -1419,11 +1426,11 @@ proc designDocumentPut*(self: CouchDb, db: string, ddoc: string, data: JsonNode,
   if rev != "": qstring &= &"&rev={rev}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", docAttachments.body)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", docAttachments.body)
   
   result = await res.toResponseMsg
 
-proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
+proc designDocumentDelete*(self: CouchDb, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc
   ##
@@ -1433,11 +1440,11 @@ proc designDocumentDelete*(self: CouchDb, db: string, ddoc: string, rev: string,
   var qstring = &"?rev={rev.encodeUrl}"
   if batch: qstring &= &"&batch=ok"
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
+proc designDocumentGetAttachment*(self: CouchDb, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-attname
   ##  support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
@@ -1451,11 +1458,11 @@ proc designDocumentGetAttachment*(self: CouchDb, db: string, ddoc: string, attac
   var qstring = ""
   if rev != "": qstring = &"?rev={rev}"
   
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/{attachment.encodeUrl}{qstring}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachment.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
+proc designDocumentPutAttachment*(self: CouchDb, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc-attname
   ##
@@ -1472,11 +1479,11 @@ proc designDocumentPutAttachment*(self: CouchDb, db: string, ddoc: string, attac
     fileContent = await fileAsync.readAll
     fileAsync.close
   
-  let res = await self.client.put(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
+  let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
   
   result = await res.toResponseMsg
 
-proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
+proc designDocumentDeleteAttachment*(self: CouchDb, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#delete--db-_design-ddoc-attname
   ##
@@ -1486,17 +1493,17 @@ proc designDocumentDeleteAttachment*(self: CouchDb, db: string, ddoc: string, at
   var qstring = &"?rev={rev}"
   if batch: qstring = "&batch=ok"
   
-  let res = await self.client.delete(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
+  let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
 
-proc designDocumentGetInfo*(self: CouchDb, db: string, ddoc: string): Future[JsonNode] {.async.} =
+proc designDocumentGetInfo*(self: CouchDb, ddoc: string): Future[JsonNode] {.async.} =
   ##
   ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#get--db-_design-ddoc-_info
   ##
   
   self.prepareRequestHeaders()
 
-  let res = await self.client.get(&"{self.url}/{db.encodeUrl}/_design/{ddoc.encodeUrl}")
+  let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}")
   
   result = await res.toResponseMsg

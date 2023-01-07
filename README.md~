@@ -20,17 +20,11 @@ proc Test() {.async.} =
     port = 5984,
     jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdG9yIiwia2lkIjoiYWRtaW5pc3RyYXRvciIsInJvbGVzIjpbIl9hZG1pbiJdfQ.NWQiPIV_yO937Uzg9YHZvFxRR8_osvLaK-lrjhOhxnM")
 
-  ## switch database
-  couchDb.switchDatabase("zendblock")
-
   ## create database zendblock
-  echo await couchDb.databasePut()
+  echo await couchDb.databasePut(db = "zendblock")
   
-
-  ## switch database
-  couchDb.switchDatabase("zendblock-snapshot")
   ## create database zendblock-snapshot for snapshot/replication
-  echo await couchDb.databasePut()
+  echo await couchDb.databasePut(db = "zenblock-snapshot")
   
   ## replicate database from zendblock to zendblock-snapshot
   echo await couchDb.serverPostReplicate(%*{
@@ -45,34 +39,34 @@ if isMainModule:
 ### Create new document with attachment
 ```nim
 proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAttachment]): Future[tuple[body: string, boundary: string, length: int]] {.async.}
-    ##
-    ##  create new document with given attachment
-    ##  will automatic convert to multipart/related
-    ##  if the attachment not valid (fileContent) file path
-    ##  it will use that content as attachment filewill
-    ##
+	##
+	##	create new document with given attachment
+	##	will automatic convert to multipart/related
+	##	if the attachment not valid (fileContent) file path
+	##	it will use that content as attachment filewill
+	##
 ```
 
 ### Create new CouchDb object
 ```nim
 proc newCouchDb*(
-    username: string,
-    password: string,
-    host: string,
-    port: int,
-    jwtToken: string = "",
-    secure: bool = false): CouchDb
-    ##
-    ##  create new couchdb instance
-    ##  jwt token is optional
-    ##  if jwt toke empty will use basic auth
-    ##
-    ##  CouchDb object
-    ##  hold couchdb information
-    ##  for secure/https set secure to true
-    ##  if jwt token exist default auth will use it
-    ##  if jwt token empty will fallback into basic auth
-    ##
+	username: string,
+	password: string,
+	host: string,
+	port: int,
+	jwtToken: string = "",
+	secure: bool = false): CouchDb
+	##
+	##	create new couchdb instance
+	##	jwt token is optional
+	##	if jwt toke empty will use basic auth
+	##
+	##	CouchDb object
+	##	hold couchdb information
+	##	for secure/https set secure to true
+	##	if jwt token exist default auth will use it
+	##	if jwt token empty will fallback into basic auth
+	##
 ```
 
 ### Get server information
@@ -81,9 +75,9 @@ Accessing the root of a CouchDB instance returns meta information about the inst
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--
 ```nim
 proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
-    ##
-    ## https://docs.couchdb.org/en/latest/api/server/common.html#get--
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/server/common.html#get--
+	##
 ```
 
 ### Get active tasks
@@ -92,9 +86,9 @@ List of running tasks, including the task type, name, status and process ID. The
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
 ```nim
 proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_active_tasks
+	##
 ```
 
 ### Get all databases in server
@@ -103,9 +97,9 @@ Returns a list of all the databases in the CouchDB instance.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
 ```nim
 proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/server/common.html#get--_all_dbs
+	##
 ```
 
 ### Get database info
@@ -114,9 +108,9 @@ Returns a list of all the databases information in the CouchDB instance.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
 ```nim
 proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, limit: int = 0, skip: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/server/common.html#get--_dbs_info
+	##
 ```
 
 ### Post to get database info
@@ -125,9 +119,9 @@ Returns information of a list of the specified databases in the CouchDB instance
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
 ```nim
 proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/server/common.html#post--_dbs_info
+	##
 ```
 
 ### Get server cluster setup
@@ -136,9 +130,9 @@ Returns the status of the node or cluster, per the cluster setup wizard.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
 ```nim
 proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_users", "_replicator"]): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_cluster_setup
+	##
 ```
 
 ### Post to configure cluster, setup as node cluster
@@ -147,9 +141,9 @@ Configure a node as a single (standalone) node, as part of a cluster, or finalis
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
 ```nim
 proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_cluster_setup
+	##
 ```
 
 ### Get database updates
@@ -158,9 +152,9 @@ Returns a list of all database events in the CouchDB instance. The existence of 
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
 ```nim
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_db_updates
+	##
 ```
 
 ### Get nodes in cluster
@@ -169,9 +163,9 @@ Displays the nodes that are part of the cluster as cluster_nodes. The field all_
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 ```nim
 proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
+	##
 ```
 
 ### Replicate database between node or local server
@@ -180,9 +174,9 @@ Request, configure, or stop, a replication operation.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
 ```nim
 proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_membership
+	##
 ```
 
 ### Get scheduler jobs
@@ -191,9 +185,9 @@ List of replication jobs. Includes replications created via /_replicate endpoint
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
 ```nim
 proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-jobs
+	##
 ```
 
 ### Get scheduler docs
@@ -203,10 +197,10 @@ List of replication document states. Includes information about all the document
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
 ```nim
 proc serverGetSchedulerDocs*(self: CouchDb, limit: int, skip: int = 0, replicatorDb: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db
+	##
 ```
 
 ### Get scheduler docs
@@ -215,9 +209,9 @@ Get information about replication documents from a replicator database. The defa
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
 ```nim
 proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_scheduler-docs-replicator_db-docid
+	##
 ```
 
 ### Get node
@@ -226,9 +220,9 @@ The /_node/{node-name} endpoint can be used to confirm the Erlang node name of t
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name
 ```nim
 proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name
+	##
 ```
 
 ### Get node state
@@ -241,9 +235,9 @@ The literal string _local serves as an alias for the local node name, so for all
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_stats
 ```nim
 proc serverGetNodeStats*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_stats
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_stats
+	##
 ```
 
 ### Get node in prometheus format
@@ -252,9 +246,9 @@ The _prometheus resource returns a text/plain response that consolidates our /_n
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_prometheus
 ```nim
 proc serverGetNodePrometheus*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_prometheus
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_prometheus
+	##
 ```
 
 ### Get node system
@@ -265,9 +259,9 @@ The literal string _local serves as an alias for the local node name, so for all
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_system
 ```nim
 proc serverGetNodeSystem*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_system
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_system
+	##
 ```
 
 ### Post to restart node
@@ -276,9 +270,9 @@ This API is to facilitate integration testing only it is not meant to be used in
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_node-node-name-_restart
 ```nim
 proc serverPostNodeRestart*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#post--_node-node-name-_restart
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_node-node-name-_restart
+	##
 ```
 
 ### Get node versions
@@ -289,9 +283,9 @@ The literal string _local serves as an alias for the local node name, so for all
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
 ```nim
 proc serverGetNodeVersions*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_node-node-name-_versions
+	##
 ```
 
 ### Post test lucene analyzer
@@ -300,9 +294,9 @@ Tests the results of Lucene analyzer tokenization on sample text.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_search_analyze
 ```nim
 proc serverPostSearchAnalyze*(self: CouchDb, field: string, text: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#post--_search_analyze
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_search_analyze
+	##
 ```
 
 ### Get if server up
@@ -311,9 +305,9 @@ Confirms that the server is up, running, and ready to respond to requests. If ma
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_up
 ```nim
 proc serverGetUp*(self: CouchDb): Future[JsonNode] {.async.} =
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_up
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_up
+	##
 ```
 
 ### Get uuids
@@ -322,9 +316,9 @@ Requests one or more Universally Unique Identifiers (UUIDs) from the CouchDB ins
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_uuids
 ```nim
 proc serverGetUUIDs*(self: CouchDb, count: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_uuids
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_uuids
+	##
 ```
 
 ### Get count of completed resharding
@@ -333,9 +327,9 @@ Returns a count of completed, failed, running, stopped, and total jobs along wit
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard
 ```nim
 proc serverGetReshard*(self: CouchDb): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard
+	##
 ```
 
 ### Get resharding state
@@ -344,9 +338,9 @@ Returns the resharding state and optional information about the state.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-state
 ```nim
 proc serverGetReshardState*(self: CouchDb): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-state
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-state
+	##
 ```
 
 ### Put reshard state
@@ -355,9 +349,9 @@ Change the resharding state on the cluster. The states are stopped or running. T
 - see https://docs.couchdb.org/en/latest/api/server/common.html#put--_reshard-state
 ```nim
 proc serverPutReshardState*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#put--_reshard-state
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#put--_reshard-state
+	##
 ```
 
 ### Get reshard jobs
@@ -367,10 +361,10 @@ The shape of the response and the total_rows and offset field in particular are 
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid
 ```nim
 proc serverGetReshardJobs*(self: CouchDb, jobId: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid
+	##
 ```
 
 ### Post reshard jobs
@@ -379,9 +373,9 @@ Depending on what fields are specified in the request, one or more resharding jo
 - see https://docs.couchdb.org/en/latest/api/server/common.html#post--_reshard-jobs
 ```nim
 proc serverPostReshardJobs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#post--_reshard-jobs
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#post--_reshard-jobs
+	##
 ```
 
 ### Delete reshard jobs
@@ -390,9 +384,9 @@ If the job is running, stop the job and then remove it.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#delete--_reshard-jobs-jobid
 ```nim
 proc serverDeleteReshardJobs*(self: CouchDb, jobId: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#delete--_reshard-jobs-jobid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#delete--_reshard-jobs-jobid
+	##
 ```
 
 ### Get reshard jobs state
@@ -401,9 +395,9 @@ Returns the running state of a resharding job identified by jobid.
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
 ```nim
 proc serverGetReshardJobsState*(self: CouchDb, jobId: string, state: string, reason: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
+	##
 ```
 
 ### Put reshard jobs state
@@ -412,9 +406,9 @@ Change the state of a particular resharding job identified by jobid. The state c
 - see https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
 ```nim
 proc serverPutReshardJobsState*(self: CouchDb, jobId: string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/common.html#get--_reshard-jobs-jobid-state
+	##
 ```
 
 ### Get node config
@@ -425,11 +419,11 @@ Returns the entire CouchDB server configuration as a JSON structure. The structu
 - see https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section-key
 ```nim
 proc serverGetNodeConfig*(self: CouchDb, nodeName: string, section: string = "", key: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section-key
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#get--_node-node-name-_config-section-key
+	##
 ```
 
 ### Put node config
@@ -438,9 +432,9 @@ Updates a configuration value. The new value should be supplied in the request b
 - see https://docs.couchdb.org/en/latest/api/server/configuration.html#put--_node-node-name-_config-section-key
 ```nim
 proc serverPutNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string, value: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#put--_node-node-name-_config-section-key
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#put--_node-node-name-_config-section-key
+	##
 ```
 
 ### Delete node config
@@ -449,9 +443,9 @@ Deletes a configuration value. The returned JSON will be the value of the config
 - see https://docs.couchdb.org/en/latest/api/server/configuration.html#delete--_node-node-name-_config-section-key
 ```nim
 proc serverDeleteNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#delete--_node-node-name-_config-section-key
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#delete--_node-node-name-_config-section-key
+	##
 ```
 
 ### Post reload node config
@@ -460,9 +454,9 @@ Reloads the configuration from disk. This has a side effect of flushing any in-m
 - see https://docs.couchdb.org/en/latest/api/server/configuration.html#post--_node-node-name-_config-_reload
 ```nim
 proc serverPostNodeConfigReload*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/server/configuration.html#post--_node-node-name-_config-_reload
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/server/configuration.html#post--_node-node-name-_config-_reload
+	##
 ```
 
 ### Get database info
@@ -471,9 +465,9 @@ Gets information about the specified database.
 - see https://docs.couchdb.org/en/latest/api/database/common.html#get--db
 ```nim
 proc databaseGetInfo*(self: CouchDb,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/common.html#get--db
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/common.html#get--db
+	##
 ```
 
 ### Put database
@@ -489,9 +483,9 @@ If you’re familiar with Regular Expressions, the rules above could be written 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#put--db
 ```nim
 proc databasePut*(self: CouchDb,db: string, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/common.html#put--db
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/common.html#put--db
+	##
 ```
 
 ### Delete database
@@ -500,9 +494,9 @@ Deletes the specified database, and all the documents and attachments contained 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
 ```nim
 proc databaseDelete*(self: CouchDb,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/common.html#delete--db
+	##
 ```
 
 ### Post database create new document
@@ -515,9 +509,9 @@ If the _id field is not specified, a new unique ID will be generated, following 
 - see https://docs.couchdb.org/en/latest/api/database/common.html#post--db
 ```nim
 proc databasePost*(self: CouchDb, document: JsonNode,db: string, batch: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/common.html#post--db
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/common.html#post--db
+	##
 ```
 
 ### Get all docs
@@ -526,9 +520,9 @@ Executes the built-in _all_docs view, returning all of the documents in the data
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
 ```nim
 proc databaseGetAllDocs*(self: CouchDb,db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_all_docs
+	##
 ```
 
 ### Post all docs
@@ -537,9 +531,9 @@ POST _all_docs functionality supports identical parameters and behavior as speci
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
 ```nim
 proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode,db: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs
+	##
 ```
 
 ### Get design docs
@@ -548,9 +542,9 @@ Returns a JSON structure of all of the design documents in a given database. The
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
 ```nim
 proc databaseGetDesignDocs*(self: CouchDb,db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#get--db-_design_docs
+	##
 ```
 
 ### Post design docs
@@ -559,9 +553,9 @@ POST _design_docs functionality supports identical parameters and behavior as sp
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
 ```nim
 proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode,db: string, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_design_docs
+	##
 ```
 
 ### Post queries all docs
@@ -570,9 +564,9 @@ Executes multiple specified built-in view queries of all documents in this datab
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
 ```nim
 proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_all_docs-queries
+	##
 ```
 
 ### Post bulk operation fetch several docs
@@ -581,9 +575,9 @@ This method can be called to query several documents in bulk. It is well suited 
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
 ```nim
 proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode,db: string, revs: bool = true): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_get
+	##
 ```
 
 ### Post bulk operation for update several docs
@@ -598,9 +592,9 @@ In case of batch deleting documents all fields as document ID, revision informat
 - see https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
 ```nim
 proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
-    ##
+	##
+	## https://docs.couchdb.org/en/latest/api/database/bulk-api.html#post--db-_bulk_docs
+	##
 ```
 
 ### Post find docs
@@ -609,9 +603,9 @@ Find documents using a declarative JSON querying syntax. Queries will use custom
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
 ```nim
 proc databasePostFind*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_find
+	##
 ```
 
 ### Post create index on database
@@ -622,9 +616,9 @@ Create a new index on a database.
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
 ```nim
 proc databasePostIndex*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_index
+	##
 ```
 
 ### Get index from database
@@ -633,18 +627,18 @@ When you make a GET request to /db/_index, you get a list of all indexes in the 
 - see https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
 ```nim
 proc databaseGetIndex*(self: CouchDb,db: string, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/find.html#get--db-_index
+	##
 ```
 
 ### Delete index from database
 - see https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
 ```nim
 proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/find.html#delete--db-_index-designdoc-json-name
+	##
 ```
 
 ### Post explain index
@@ -653,22 +647,22 @@ Shows which index is being used by the query. Parameters are the same as _find.
 - see https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
 ```nim
 proc databasePostExplain*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/find.html#post--db-_explain
+	##
 ```
 
 ### Get database shards
 The response will contain a list of database shards. Each shard will have its internal database range, and the nodes on which replicas of those shards are stored.
 Returns information about the specific shard into which a given document has been stored, along with information about the nodes on which that shard has a replica.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards-docid
 ```nim
 proc databaseGetShards*(self: CouchDb, docId: string = "",db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/shard.html#get--db-_shards
+	##
 ```
 
 ### Post to sync shards to all replicas
@@ -678,33 +672,33 @@ This is typically only used when performing cluster maintenance, such as moving 
 - see https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
 ```nim
 proc databasePostSyncShards*(self: CouchDb,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/shard.html#post--db-_sync_shards
+	##
 ```
 
 ### Get sorted list changes document
 Returns a sorted list of changes made to documents in the database, in time order of application, can be obtained from the database’s _changes resource. Only the most recent change for a given document is guaranteed to be provided, for example if a document has had fields added, and then deleted, an API client checking for changes will not necessarily receive the intermediate state of added documents.
 
 This can be used to listen for update and modifications to the database for post processing or synchronization, and for practical purposes, a continuously connected _changes feed is a reasonable approach for generating a real-time log for most applications.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
 ```nim
 proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[],db: string, conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/changes.html#get--db-_changes
+	##
 ```
-    
+	
 ### Post to get sorted list canges document with larger list
 Requests the database changes feed in the same way as GET /{db}/_changes does, but is widely used with ?filter=_doc_ids query parameter and allows one to pass a larger list of document IDs to filter.
 
 - see https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
 ```nim
 proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string] = @[],db: string, conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/changes.html#post--db-_changes
+	##
 ```
 
 ### Post to compact/compress database
@@ -728,10 +722,10 @@ Compacts the view indexes associated with the specified design document. It may 
 - see https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
 ```nim
 proc databasePostCompact*(self: CouchDb, ddoc: string = "",db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
-    ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact
+	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_compact-ddoc
+	##
 ```
 
 ### Post view  cleanup to remove unused view
@@ -740,9 +734,9 @@ Removes view index files that are no longer required by CouchDB as a result of c
 - https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
 ```nim
 proc databasePostViewCleanup*(self: CouchDb,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/compact.html#post--db-_view_cleanup
+	##
 ```
 
 ### Get security option from database
@@ -775,20 +769,20 @@ If there are any member names or roles defined for a database, then only authent
 - see https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
 ```nim
 proc databaseGetSecurity*(self: CouchDb, db:string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/security.html#get--db-_security
+	##
 ```
 
 ### Put security
 Sets the security object for the given database.
-    
+	
 - https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
 ```nim
 proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/security.html#put--db-_security
+	##
 ```
 
 ### Post purge to remove references
@@ -801,20 +795,20 @@ The response will contain a list of the document IDs and revisions successfully 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
 ```nim
 proc databasePostPurge*(self: CouchDb, jsonData: JsonNode,db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_purge
+	##
 ```
-    
+	
 ### Get purged infos limit from database
 Gets the current purged_infos_limit (purged documents limit) setting, the maximum number of historical purges (purged document Ids with their revisions) that can be stored in the database.
 
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
 ```nim
 proc databaseGetPurgedInfosLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_purged_infos_limit
+	##
 ```
 
 ### Put purge infos limit to database
@@ -827,20 +821,20 @@ This request sets the soft limit for stored purges. During the compaction CouchD
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
 ```nim
 proc databasePutPurgedInfosLimit*(self: CouchDb, db:string, purgedInfosLimit: int): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_purged_infos_limit
+	##
 ```
 
 ### Post missing revs
 With given a list of document revisions, returns the document revisions that do not exist in the database.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
 ```nim
 proc databasePostMissingRevs*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_missing_revs
+	##
 ```
 
 ### Post revs diff
@@ -856,9 +850,9 @@ Both the request and response bodies are JSON objects whose keys are document ID
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
 ```nim
 proc databasePostRevsDiff*(self: CouchDb, db:string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#post--db-_revs_diff
+	##
 ```
 
 ### Get revs limit from database
@@ -867,9 +861,9 @@ Gets the current revs_limit (revision limit) setting.
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
 ```nim
 proc databaseGetRevsLimit*(self: CouchDb, db: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#get--db-_revs_limit
+	##
 ```
 
 ### Put revs limit to database
@@ -878,20 +872,20 @@ Sets the maximum number of document revisions that will be tracked by CouchDB, e
 - see https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
 ```nim
 proc databasePutRevsLimit*(self: CouchDb, db:string, revsLimit: int): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/database/misc.html#put--db-_revs_limit
+	##
 ```
 
 ### Get document
 Returns document by the specified docid from the specified db. Unless you request a specific revision, the latest revision of the document will always be returned.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
 ```nim
 proc documentGet*(self: CouchDb, db: string, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/common.html#get--db-docid
+	##
 ```
 
 ### Put docuement
@@ -902,9 +896,9 @@ When updating an existing document, the current document revision must be includ
 - see https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
 ```nim
 proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/common.html#put--db-docid
+	##
 ```
 
 ### Put Document with attachment
@@ -918,20 +912,20 @@ The subsequent MIME bodies are the attachments.
 - see https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
 ```nim
 proc documentPut*(self: CouchDb, db: string, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/common.html#creating-multiple-attachments
+	##
 ```
-    
+	
 ### Delete document
 Marks the specified document as deleted by adding a field _deleted with the value true. Documents with this field will not be returned within requests anymore, but stay in the database. You must supply the current (latest) revision, either by using the rev parameter or by using the If-Match header to specify the revision.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
 ```nim
 proc documentDelete*(self: CouchDb, db: string, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/common.html#delete--db-docid
+	##
 ```
 
 ### Get document attachment
@@ -940,35 +934,35 @@ Returns the file attachment associated with the document. The raw data of the as
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
 ```nim
 proc documentGetAttachment*(self: CouchDb, db: string, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
-    ##  support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
-    ##  bytesRange = (0, 1000) -> get get from 0 to 1000 range bytes
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#get--db-docid-attname
+	##	support get range https://datatracker.ietf.org/doc/html/rfc2616.html#section-14.27
+	##	bytesRange = (0, 1000) -> get get from 0 to 1000 range bytes
+	##
 ```
 
 ### Put document attachment
 Uploads the supplied content as an attachment to the specified document. The attachment name provided must be a URL encoded string. You must supply the Content-Type header, and for an existing document you must also supply either the rev query argument or the If-Match HTTP header. If the revision is omitted, a new, otherwise empty document will be created with the provided attachment, or a conflict will occur.
 
 If case when uploading an attachment using an existing attachment name, CouchDB will update the corresponding stored content of the database. Since you must supply the revision information to add an attachment to the document, this serves as validation to update the existing attachment.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
 proc documentPutAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
+	##
 ```
 
 ### Delete document attachment
 Deletes the attachment with filename {attname} of the specified doc. You must supply the rev query parameter or If-Match with the current revision to delete the attachment.
-    
+	
 - see https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
 ```nim
 proc documentDeleteAttachment*(self: CouchDb, db: string, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/document/attachments.html#put--db-docid-attname
+	##
 ```
 
 ### Get design document view
@@ -977,20 +971,20 @@ Executes the specified view function from the specified design document.
 - see https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
 ```nim
 proc designDocumentGetView*(self: CouchDb, db: string, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/common.html#put--db-_design-ddoc
+	##
 ```
-    
+	
 ### Post design document view
 Executes the specified view function from the specified design document. POST view functionality supports identical parameters and behavior as specified in the GET /{db}/_design/{ddoc}/_view/{view} API but allows for the query string parameters to be supplied as keys in a JSON object in the body of the POST request.
 
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
 ```nim
 proc designDocumentPostView*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view
+	##
 ```
 
 ### Post design document view queries
@@ -999,9 +993,9 @@ Executes the specified view function from the specified design document. POST vi
 - see https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
 ```nim
 proc designDocumentPostViewQueries*(self: CouchDb, db: string, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/views.html#post--db-_design-ddoc-_view-view-queries
+	##
 ```
 
 ### Get design document search
@@ -1010,18 +1004,18 @@ Executes a search request against the named index in the specified design docume
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
 ```nim
 proc designDocumentGetSearch*(self: CouchDb, db: string, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search-index
+	##
 ```
 
 ### Get design document search info
 - see https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
 ```nim
 proc designDocumentGetSearchInfo*(self: CouchDb, db: string, ddoc: string, index: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/search.html#get--db-_design-ddoc-_search_info-index
+	##
 ```
 
 ### Post design document update func
@@ -1030,9 +1024,9 @@ Executes update function on server side for null document.
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
 ```nim
 proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#post--db-_design-ddoc-_update-func
+	##
 ```
 
 ### Put design document update func
@@ -1041,9 +1035,9 @@ Executes update function on server side for the specified document.
 - see https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
 ```nim
 proc designDocumentPostUpdateFunc*(self: CouchDb, db: string, ddoc: string, function: string, docId: string = "", jsonData: JsonNode = nil): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/ddoc/render.html#put--db-_design-ddoc-_update-func-docid
+	##
 ```
 
 ### Get partition database
@@ -1052,45 +1046,45 @@ This endpoint returns information describing the provided partition. It includes
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
 ```nim
 proc partitionDatabaseGet*(self: CouchDb, db: string, partition: string): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition
+	##
 ```
 
 ### Get partition database all docs
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
 ```nim
 proc partitionDatabaseGetAllDocs*(self: CouchDb, db: string, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_all_docs
+	##
 ```
 
 ### Get partition database design view
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
 ```nim
 proc partitionDatabaseGetDesignView*(self: CouchDb, db: string, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#get--db-_partition-partition-_design-ddoc-_view-view
+	##
 ```
 
 ### Post partition database find
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
 ```nim
 proc partitionDatabasePostFind*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_find
+	##
 ```
-    
+	
 ### Post partition database explain
 - see https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
 ```nim
 proc partitionDatabasePostExplain*(self: CouchDb, db: string, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.}
-    ##
-    ##  https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
-    ##
+	##
+	##	https://docs.couchdb.org/en/latest/api/partitioned-dbs.html#post--db-_partition-partition_id-_explain
+	##
 ```
 
 ### Get design document
