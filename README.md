@@ -76,7 +76,7 @@ proc newCouchDb*(
 ```
 
 ### Switch default database for entire operation
-```
+```nim
 proc switchDatabase*(self: CouchDb, database: string) =
   ##
   ##  switch to default database name for operation
