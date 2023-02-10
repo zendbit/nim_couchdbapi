@@ -35,15 +35,15 @@ type
   ##  if jwt token empty will fallback into basic auth
   ##
   CouchDb* = ref object
-    username*: string
-    password*: string
-    host*: string
-    port*: int
-    jwtToken*: string
-    secure*: bool
-    url*: string
-    client*: AsyncHttpClient
-    database*: string
+    username: string
+    password: string
+    host: string
+    port: int
+    jwtToken: string
+    secure: bool
+    url: string
+    client: AsyncHttpClient
+    database: string
 
   ##
   ##  For attachment to document
@@ -53,6 +53,35 @@ type
     fileName*: string
     fileContent*: string
     contentType*: string
+
+proc connectorInfo*(self: CouchDb): tuple[
+  username: string,
+  password: string,
+  host: string,
+  port: int,
+  jwtToken: string,
+  secure: bool,
+  database: string,
+  url: string] =
+  ##
+  ##  return information about couchdb connection settings
+  ##
+  result = (
+    self.username,
+    self.password,
+    self.host,
+    self.port,
+    self.jwtToken,
+    self.secure,
+    self.database,
+    $self.url)
+
+proc currentDatabase*(self: CouchDb): string =
+  ##
+  ##  get current active database
+  ##  this set via switchDatabase(<dbname>)
+  ##
+  result = self.database
 
 proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAttachment]): Future[tuple[body: string, boundary: string, length: int]] {.async.} =
   ##
