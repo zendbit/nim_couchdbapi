@@ -34,16 +34,16 @@ type
   ##  if jwt token exist default auth will use it
   ##  if jwt token empty will fallback into basic auth
   ##
-  CouchDb* = ref object
-    username: string
-    password: string
-    host: string
-    port: int
-    jwtToken: string
-    secure: bool
-    url: string
-    client: AsyncHttpClient
-    database: string
+  CouchDb* = ref object of RootObj
+    username*: string
+    password*: string
+    host*: string
+    port*: int
+    jwtToken*: string
+    secure*: bool
+    url*: string
+    client*: AsyncHttpClient
+    database*: string
 
   ##
   ##  For attachment to document
