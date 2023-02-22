@@ -16,7 +16,8 @@ import os
 import asyncfile
 import streams
 import std/sha1
-import net
+when defined ssl:
+  import net
 
 export json
 export asyncdispatch
@@ -153,11 +154,19 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 
     result = (body, boundaryId, body.len)
 
-proc newHttpRequest(sslContext: SslContext): AsyncHttpClient =
-  ##
-  ##  create httpclient object
-  ##
-  result = newAsyncHttpClient(sslContext = sslContext)
+when defined ssl:
+  proc newHttpRequest(sslContext: SslContext): AsyncHttpClient =
+    ##
+    ##  create httpclient object
+    ##
+    result = newAsyncHttpClient(sslContext = sslContext)
+else:
+  proc newHttpRequest(): AsyncHttpClient =
+    ##
+    ##  create httpclient object
+    ##
+    result = newAsyncHttpClient()
+
 
 proc newResponseMsg(): JsonNode =
   ##
@@ -190,21 +199,33 @@ proc newCouchDb*(
   ##  if jwt token exist default auth will use it
   ##  if jwt token empty will fallback into basic auth
   ##
-  var sslContext: SslContext
-  if verifySsl:
-    sslContext = newContext(verifyMode = CVerifyPeer)
-  else:
-    sslContext = newContext(verifyMode = CVerifyNone)
+  when defined ssl:
+    var sslContext: SslContext
+    if verifySsl:
+      sslContext = newContext(verifyMode = CVerifyPeer)
+    else:
+      sslContext = newContext(verifyMode = CVerifyNone)
 
-  result = CouchDb(
-    username: username,
-    password: password,
-    host: host,
-    port: port,
-    jwtToken: jwtToken,
-    secure: secure,
-    client: newHttpRequest(sslContext = sslContext)
-  )
+    result = CouchDb(
+      username: username,
+      password: password,
+      host: host,
+      port: port,
+      jwtToken: jwtToken,
+      secure: secure,
+      client: newHttpRequest(sslContext = sslContext)
+    )
+
+  else:
+    result = CouchDb(
+      username: username,
+      password: password,
+      host: host,
+      port: port,
+      jwtToken: jwtToken,
+      secure: secure,
+      client: newHttpRequest()
+    )
 
   ##
   ##  check using secure connection or not
