@@ -16,6 +16,7 @@ import os
 import asyncfile
 import streams
 import std/sha1
+import net
 
 export json
 export asyncdispatch
@@ -44,6 +45,7 @@ type
     url*: string
     client*: AsyncHttpClient
     database*: string
+    verifySsl*: bool
 
   ##
   ##  For attachment to document
@@ -62,7 +64,8 @@ proc connectorInfo*(self: CouchDb): tuple[
   jwtToken: string,
   secure: bool,
   database: string,
-  url: string] =
+  url: string,
+  verifySsl: bool] =
   ##
   ##  return information about couchdb connection settings
   ##
@@ -74,7 +77,8 @@ proc connectorInfo*(self: CouchDb): tuple[
     self.jwtToken,
     self.secure,
     self.database,
-    $self.url)
+    $self.url,
+    self.verifySsl)
 
 proc currentDatabase*(self: CouchDb): string =
   ##
@@ -149,13 +153,13 @@ proc newDocumentWithAttachments*(jsonData: JsonNode, attachments: seq[DocumentAt
 
     result = (body, boundaryId, body.len)
 
-proc newHttpRequest*(): AsyncHttpClient =
+proc newHttpRequest(sslContext: SslContext): AsyncHttpClient =
   ##
   ##  create httpclient object
   ##
   result = newAsyncHttpClient()
 
-proc newResponseMsg*(): JsonNode =
+proc newResponseMsg(): JsonNode =
   ##
   ##  create new response msg for each request
   ##  make it standard output
@@ -173,7 +177,8 @@ proc newCouchDb*(
   host: string,
   port: int,
   jwtToken: string = "",
-  secure: bool = false): CouchDb =
+  secure: bool = false,
+  verifySsl: bool = true): CouchDb =
   ##
   ##  create new couchdb instance
   ##  jwt token is optional
@@ -185,6 +190,12 @@ proc newCouchDb*(
   ##  if jwt token exist default auth will use it
   ##  if jwt token empty will fallback into basic auth
   ##
+  var sslContext: SslContext
+  if verifySsl:
+    sslContext = newContext(verifyMode = CVerifyPeer)
+  else:
+    sslContext = newContext(verifyMode = CVerifyNone)
+
   result = CouchDb(
     username: username,
     password: password,
@@ -192,7 +203,7 @@ proc newCouchDb*(
     port: port,
     jwtToken: jwtToken,
     secure: secure,
-    client: newAsyncHttpClient()
+    client: newAsyncHttpClient(sslContext = sslContext)
   )
 
   ##
