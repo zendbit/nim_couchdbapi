@@ -157,7 +157,7 @@ proc newHttpRequest(sslContext: SslContext): AsyncHttpClient =
   ##
   ##  create httpclient object
   ##
-  result = newAsyncHttpClient()
+  result = newAsyncHttpClient(sslContext = sslContext)
 
 proc newResponseMsg(): JsonNode =
   ##
@@ -203,7 +203,7 @@ proc newCouchDb*(
     port: port,
     jwtToken: jwtToken,
     secure: secure,
-    client: newAsyncHttpClient(sslContext = sslContext)
+    client: newHttpRequest(sslContext = sslContext)
   )
 
   ##
