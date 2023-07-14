@@ -1568,3 +1568,45 @@ proc designDocumentGetInfo*(self: CouchDb, ddoc: string): Future[JsonNode] {.asy
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}")
   
   result = await res.toResponseMsg
+
+proc putUser*(self: CouchDb, name, password, userType: string, roles: seq[string]): Future[JsonNode] {.async.} =
+  ##
+  ##  https://docs.couchdb.org/en/stable/intro/security.html#creating-a-new-user
+  ##
+  
+  self.prepareRequestPostJsonHeaders()
+
+  let jsonData = %*{
+    "name": name,
+    "password": password,
+    "type": userType,
+    "roles": roles
+  }
+
+  let res = await self.client.put(&"{self.url}/_users/org.couchdb.user:{name}", $jsonData)
+
+  result = await res.toResponseMsg
+
+proc getUser*(self: CouchDb, name: string): Future[JsonNode] {.async.} =
+  ##
+  ##  https://docs.couchdb.org/en/stable/intro/security.html#creating-a-new-user
+  ##
+  
+  self.prepareRequestHeaders()
+
+  let res = await self.client.get(&"{self.url}/_users/org.couchdb.user:{name}")
+  
+  result = await res.toResponseMsg
+
+proc userGetAuthCheck*(self: CouchDb, name, password: string): Future[JsonNode] {.async.} =
+  ##
+  ##  https://docs.couchdb.org/en/stable/api/server/authn.html#basic-authentication
+  ##
+  
+  self.client.headers.clear()
+  let basicAuthToken = encode(&"{name}:{password}")
+  self.client.headers["Authorization"] = &"Basic {basicAuthToken}"
+
+  let res = await self.client.get(&"{self.url}")
+  
+  result = await res.toResponseMsg
