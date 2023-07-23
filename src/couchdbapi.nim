@@ -281,19 +281,19 @@ proc toResponseMsg(response: AsyncResponse): Future[JsonNode] {.async.} =
   let responseMsg = newResponseMsg()
   let body = await response.body
   let statusCode = cast[HttpCode](response.status.split(" ")[0].parseInt)
-
-  responseMsg{"status"} = %(statusCode.int)
-
+  
+  responseMsg{"status"} = %statusCode.int
+  
   if statusCode.is2xx:
     responseMsg{"success"} = %true
     try:
-      responseMsg{"data"} = % body.parseJson
+      responseMsg{"data"}{"msg"} = % body.parseJson
     except:
       responseMsg{"data"}{"msg"} = %body
 
   else:
     try:
-      responseMsg{"error"} = % body.parseJson
+      responseMsg{"error"}{"msg"} = % body.parseJson
     except:
       responseMsg{"error"}{"msg"} = %body
 
