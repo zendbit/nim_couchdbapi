@@ -174,7 +174,7 @@ proc newResponseMsg(): JsonNode =
   ##  make it standard output
   ##
   result = %*{
-    "status": $Http405,
+    "status": 405,
     "success": false,
     "error": {},
     "data": {}
@@ -279,9 +279,12 @@ proc toResponseMsg(response: AsyncResponse): Future[JsonNode] {.async.} =
   ## }
   ##
   let responseMsg = newResponseMsg()
-  responseMsg{"status"} = %response.status
   let body = await response.body
-  if (cast[HttpCode](response.status.split(" ")[0].parseInt)).is2xx:
+  let statusCode = cast[HttpCode](response.status.split(" ")[0].parseInt)
+
+  responseMsg{"status"} = %(statusCode.int)
+
+  if statusCode.is2xx:
     responseMsg{"success"} = %true
     try:
       responseMsg{"data"} = % body.parseJson
