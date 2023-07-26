@@ -5,3 +5,4 @@ htmldocs/
 *.nim~
 *.un~
 nimbledeps
+*.swp

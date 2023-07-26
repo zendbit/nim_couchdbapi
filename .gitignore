@@ -6,3 +6,4 @@ htmldocs/
 *.un~
 nimbledeps
 *.swp
+*.swo
