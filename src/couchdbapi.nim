@@ -305,6 +305,7 @@ proc serverGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
   let res = await self.client.get(&"{self.url}")
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -316,6 +317,7 @@ proc serverGetActiveTasks*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_active_tasks")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -333,6 +335,7 @@ proc serverGetAllDbs*(self: CouchDb, descending: bool = false, startkey: JsonNod
   let res = await self.client.get(&"{self.url}/_all_dbs{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, limit: int = 0, skip: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -350,6 +353,7 @@ proc serverGetDbsInfo*(self: CouchDb, descending: bool = false, startkey: JsonNo
   let res = await self.client.get(&"{self.url}/_dbs_info{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.async.} =
   ##
@@ -361,6 +365,7 @@ proc serverPostDbsInfo*(self: CouchDb, keys: seq[JsonNode]): Future[JsonNode] {.
   let res = await self.client.post(&"{self.url}/_dbs_info", body = $ %*{"keys":keys})
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_users", "_replicator"]): Future[JsonNode] {.async.} =
   ##
@@ -372,6 +377,7 @@ proc serverGetClusterSetup*(self: CouchDb, ensureDbsExist: seq[string] = @["_use
   let res = await self.client.get(&"{self.url}/_cluster_setup?ensure_dbs_exist={encodeUrl($ %ensureDbsExist)}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -383,6 +389,7 @@ proc serverPostClusterSetup*(self: CouchDb, jsonData: JsonNode): Future[JsonNode
   let res = await self.client.post(&"{self.url}/_cluster_setup", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 6000, heartbeat: int = 6000, since: string = "now"): Future[JsonNode] {.async.} =
   ##
@@ -394,6 +401,7 @@ proc serverGetDbUpdates*(self: CouchDb, feed: string = "normal", timeout: int = 
   let res = await self.client.get(&"{self.url}/_db_updates?feed={feed}&timeout={timeout}&heartbeat={heartbeat}&since={since}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -405,6 +413,7 @@ proc serverGetMembership*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_membership")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -416,6 +425,7 @@ proc serverPostReplicate*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {
   let res = await self.client.post(&"{self.url}/_replicate", body = $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -427,6 +437,7 @@ proc serverGetSchedulerJobs*(self: CouchDb, limit: int, skip: int = 0): Future[J
   let res = await self.client.get(&"{self.url}/_scheduler/jobs?limit={limit}&skip={skip}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetSchedulerDocs*(self: CouchDb, limit: int, skip: int = 0, replicatorDb: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -442,6 +453,7 @@ proc serverGetSchedulerDocs*(self: CouchDb, limit: int, skip: int = 0, replicato
   let res = await self.client.get(&"{self.url}/_scheduler/docs{replicator}?limit={limit}&skip={skip}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string): Future[JsonNode] {.async.} =
   ##
@@ -453,6 +465,7 @@ proc serverGetSchedulerDocs*(self: CouchDb, replicatorDb: string, docId: string)
   let res = await self.client.get(&"{self.url}/_scheduler/docs/{replicatorDb}/{docId}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -464,6 +477,7 @@ proc serverGetNode*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.}
   let res = await self.client.get(&"{self.url}/_node/{nodeName}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNodeStats*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -475,6 +489,7 @@ proc serverGetNodeStats*(self: CouchDb, nodeName: string): Future[JsonNode] {.as
   let res = await self.client.get(&"{self.url}/_node/{nodeName}/_stats/couchdb/request_time")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNodePrometheus*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -486,6 +501,7 @@ proc serverGetNodePrometheus*(self: CouchDb, nodeName: string): Future[JsonNode]
   let res = await self.client.get(&"{self.url}/_node/{nodeName}/_prometheus")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNodeSystem*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -497,6 +513,7 @@ proc serverGetNodeSystem*(self: CouchDb, nodeName: string): Future[JsonNode] {.a
   let res = await self.client.get(&"{self.url}/_node/{nodeName}/_system")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostNodeRestart*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -508,6 +525,7 @@ proc serverPostNodeRestart*(self: CouchDb, nodeName: string): Future[JsonNode] {
   let res = await self.client.post(&"{self.url}/_node/{nodeName}/_restart")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNodeVersions*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -519,6 +537,7 @@ proc serverGetNodeVersions*(self: CouchDb, nodeName: string): Future[JsonNode] {
   let res = await self.client.get(&"{self.url}/_node/{nodeName}/_versions")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostSearchAnalyze*(self: CouchDb, field: string, text: string): Future[JsonNode] {.async.} =
   ##
@@ -534,6 +553,7 @@ proc serverPostSearchAnalyze*(self: CouchDb, field: string, text: string): Futur
   let res = await self.client.post(&"{self.url}/_search_analyze", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetUp*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -545,6 +565,7 @@ proc serverGetUp*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_up")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetUUIDs*(self: CouchDb, count: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -556,6 +577,7 @@ proc serverGetUUIDs*(self: CouchDb, count: int = 0): Future[JsonNode] {.async.} 
   let res = await self.client.get(&"{self.url}/_uuids")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetReshard*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -567,6 +589,7 @@ proc serverGetReshard*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_reshard")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetReshardState*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -578,6 +601,7 @@ proc serverGetReshardState*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_reshard/state")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPutReshardState*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -589,6 +613,7 @@ proc serverPutReshardState*(self: CouchDb, jsonData: JsonNode): Future[JsonNode]
   let res = await self.client.put(&"{self.url}/_reshard/state", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetReshardJobs*(self: CouchDb, jobId: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -604,6 +629,7 @@ proc serverGetReshardJobs*(self: CouchDb, jobId: string = ""): Future[JsonNode] 
   let res = await self.client.get(&"{self.url}/_reshard/jobs{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostReshardJobs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -615,6 +641,7 @@ proc serverPostReshardJobs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode]
   let res = await self.client.post(&"{self.url}/_reshard/jobs", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverDeleteReshardJobs*(self: CouchDb, jobId: string): Future[JsonNode] {.async.} =
   ##
@@ -626,6 +653,7 @@ proc serverDeleteReshardJobs*(self: CouchDb, jobId: string): Future[JsonNode] {.
   let res = await self.client.delete(&"{self.url}/_reshard/jobs/{jobId}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetReshardJobsState*(self: CouchDb, jobId: string, state: string, reason: string): Future[JsonNode] {.async.} =
   ##
@@ -637,6 +665,7 @@ proc serverGetReshardJobsState*(self: CouchDb, jobId: string, state: string, rea
   let res = await self.client.get(&"{self.url}/_reshard/jobs/{jobId.encodeUrl}/state?state={state.encodeUrl}&state_reason={reason.encodeUrl}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPutReshardJobsState*(self: CouchDb, jobId: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -648,6 +677,7 @@ proc serverPutReshardJobsState*(self: CouchDb, jobId: string, jsonData: JsonNode
   let res = await self.client.put(&"{self.url}/_reshard/jobs/{jobId}/state", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverGetNodeConfig*(self: CouchDb, nodeName: string, section: string = "", key: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -665,6 +695,7 @@ proc serverGetNodeConfig*(self: CouchDb, nodeName: string, section: string = "",
   let res = await self.client.get(&"{self.url}/_node/{nodeName}/_config{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPutNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string, value: string): Future[JsonNode] {.async.} =
   ##
@@ -676,6 +707,7 @@ proc serverPutNodeConfig*(self: CouchDb, nodeName: string, section: string, key:
   let res = await self.client.put(&"{self.url}/_node/{nodeName}/_config/{section}/{key}", $ %value)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverDeleteNodeConfig*(self: CouchDb, nodeName: string, section: string, key: string): Future[JsonNode] {.async.} =
   ##
@@ -687,6 +719,7 @@ proc serverDeleteNodeConfig*(self: CouchDb, nodeName: string, section: string, k
   let res = await self.client.delete(&"{self.url}/_node/{nodeName}/_config/{section}/{key}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc serverPostNodeConfigReload*(self: CouchDb, nodeName: string): Future[JsonNode] {.async.} =
   ##
@@ -698,6 +731,7 @@ proc serverPostNodeConfigReload*(self: CouchDb, nodeName: string): Future[JsonNo
   let res = await self.client.post(&"{self.url}/_node/{nodeName}/_config/_reload")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -707,6 +741,7 @@ proc databaseGetInfo*(self: CouchDb): Future[JsonNode] {.async.} =
   self.prepareRequestHeaders()
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}")
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePut*(self: CouchDb, shards: int = 8, replicas: int = 3, partitioned: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -718,6 +753,7 @@ proc databasePut*(self: CouchDb, shards: int = 8, replicas: int = 3, partitioned
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}?q={shards}&n={replicas}&partitioned={partitioned}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 
 proc databaseDelete*(self: CouchDb): Future[JsonNode] {.async.} =
@@ -730,6 +766,7 @@ proc databaseDelete*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePost*(self: CouchDb, document: JsonNode, batch: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -743,6 +780,7 @@ proc databasePost*(self: CouchDb, document: JsonNode, batch: bool = false): Futu
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}", $document)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetAllDocs*(self: CouchDb, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -760,6 +798,7 @@ proc databaseGetAllDocs*(self: CouchDb, descending: bool = false, startkey: Json
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_all_docs{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -777,6 +816,7 @@ proc databasePostAllDocs*(self: CouchDb, jsonData: JsonNode, descending: bool = 
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_all_docs{qstring}", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetDesignDocs*(self: CouchDb, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -801,6 +841,7 @@ proc databaseGetDesignDocs*(self: CouchDb, conflicts: bool = false, descending: 
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design_docs{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode, conflicts: bool = false, descending: bool = false, startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, includeDocs: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -825,6 +866,7 @@ proc databasePostDesignDocs*(self: CouchDb, jsonData: JsonNode, conflicts: bool 
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design_docs{qstring}", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -836,6 +878,7 @@ proc databasePostAllDocsQueries*(self: CouchDb, queries: JsonNode): Future[JsonN
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_all_docs/queries", $queries)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode, revs: bool = true): Future[JsonNode] {.async.} =
   ##
@@ -847,6 +890,7 @@ proc databasePostBulkGet*(self: CouchDb, jsonData: JsonNode, revs: bool = true):
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_bulk_get?revs={revs}", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -858,6 +902,7 @@ proc databasePostBulkDocs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] 
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_bulk_docs", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostFind*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -869,6 +914,7 @@ proc databasePostFind*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.as
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_find", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostIndex*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -880,6 +926,7 @@ proc databasePostIndex*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.a
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_index", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetIndex*(self: CouchDb, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -896,6 +943,7 @@ proc databaseGetIndex*(self: CouchDb, skip: int = 0, limit: int = 0): Future[Jso
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_index{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string): Future[JsonNode] {.async.} =
   ##
@@ -907,6 +955,7 @@ proc databaseDeleteIndex*(self: CouchDb, ddoc: string, name: string): Future[Jso
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_index/{ddoc.encodeUrl}/json/{name.encodeUrl}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostExplain*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -918,6 +967,7 @@ proc databasePostExplain*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_explain", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetShards*(self: CouchDb, docId: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -934,6 +984,7 @@ proc databaseGetShards*(self: CouchDb, docId: string = ""): Future[JsonNode] {.a
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_shards{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostSyncShards*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -945,6 +996,7 @@ proc databasePostSyncShards*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_sync_shards")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -973,6 +1025,7 @@ proc databaseGetChanges*(self: CouchDb, docIds: seq[string] = @[], conflicts: bo
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_changes{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string] = @[], conflicts: bool = false, descending: bool = false, feed: string = "normal", filter: string = "", heartbeat: int = 60000, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, lastEventId: int = 0, limit: int = 0, since: string = "now", style: string = "main_only", timeout: int = 60000, view: string = "", seqInterval: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -1001,6 +1054,7 @@ proc databasePostChanges*(self: CouchDb, jsonData: JsonNode, docIds: seq[string]
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_changes{qstring}", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostCompact*(self: CouchDb, ddoc: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1016,6 +1070,7 @@ proc databasePostCompact*(self: CouchDb, ddoc: string = ""): Future[JsonNode] {.
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_compact{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostViewCleanup*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -1027,6 +1082,7 @@ proc databasePostViewCleanup*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_view_cleanup")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetSecurity*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -1038,6 +1094,7 @@ proc databaseGetSecurity*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_security")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1049,6 +1106,7 @@ proc databasePutSecurity*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_security", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostPurge*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1060,6 +1118,7 @@ proc databasePostPurge*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.a
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_purge", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetPurgedInfosLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -1071,6 +1130,7 @@ proc databaseGetPurgedInfosLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_purged_infos_limit")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePutPurgedInfosLimit*(self: CouchDb, purgedInfosLimit: int): Future[JsonNode] {.async.} =
   ##
@@ -1082,6 +1142,7 @@ proc databasePutPurgedInfosLimit*(self: CouchDb, purgedInfosLimit: int): Future[
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_purged_infos_limit", $ %purgedInfosLimit)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostMissingRevs*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1093,6 +1154,7 @@ proc databasePostMissingRevs*(self: CouchDb, jsonData: JsonNode): Future[JsonNod
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_missing_revs", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePostRevsDiff*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1104,6 +1166,7 @@ proc databasePostRevsDiff*(self: CouchDb, jsonData: JsonNode): Future[JsonNode] 
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_revs_diff", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databaseGetRevsLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   ##
@@ -1115,6 +1178,7 @@ proc databaseGetRevsLimit*(self: CouchDb): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_revs_limit")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc databasePutRevsLimit*(self: CouchDb, revsLimit: int): Future[JsonNode] {.async.} =
   ##
@@ -1126,6 +1190,7 @@ proc databasePutRevsLimit*(self: CouchDb, revsLimit: int): Future[JsonNode] {.as
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_revs_limit", $ %revsLimit)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentGet*(self: CouchDb, docId: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1150,6 +1215,7 @@ proc documentGet*(self: CouchDb, docId: string, attachments: bool = false, attEn
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentPut*(self: CouchDb, docId: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
@@ -1165,6 +1231,7 @@ proc documentPut*(self: CouchDb, docId: string, data: JsonNode, rev: string = ""
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}", $data)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentPut*(self: CouchDb, docId: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
@@ -1183,6 +1250,7 @@ proc documentPut*(self: CouchDb, docId: string, data: JsonNode, attachments: seq
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}", docAttachments.body)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentDelete*(self: CouchDb, docId: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1197,6 +1265,7 @@ proc documentDelete*(self: CouchDb, docId: string, rev: string, batch: bool = fa
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentGetAttachment*(self: CouchDb, docId: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1215,6 +1284,7 @@ proc documentGetAttachment*(self: CouchDb, docId: string, attachment: string, by
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachment.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentPutAttachment*(self: CouchDb, docId: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1236,6 +1306,7 @@ proc documentPutAttachment*(self: CouchDb, docId: string, attachmentName: string
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc documentDeleteAttachment*(self: CouchDb, docId: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1250,6 +1321,7 @@ proc documentDeleteAttachment*(self: CouchDb, docId: string, attachmentName: str
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/{docId.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGetView*(self: CouchDb, ddoc: string, view: string, conflicts: bool = false, descending: bool = false, endkey: JsonNode = nil, endkeyDocId: JsonNode = nil, group: bool = false, groupLevel: int = 0, includeDocs: bool = false, attachments: bool = false, attEncodingInfo: bool = false, inclusiveEnd: bool = true, key: JsonNode = nil, keys: seq[JsonNode] = @[], limit: int = 0, reduce: bool = true, skip: int = 0, sorted: bool = true, stable: bool = false, stale: string = "", startkey: JsonNode = nil, startkeyDocId: JsonNode = nil, update: string = "true", updateSeq: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1284,6 +1356,7 @@ proc designDocumentGetView*(self: CouchDb, ddoc: string, view: string, conflicts
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPostView*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1295,6 +1368,7 @@ proc designDocumentPostView*(self: CouchDb, ddoc: string, view:string, jsonData:
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPostViewQueries*(self: CouchDb, ddoc: string, view:string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1306,6 +1380,7 @@ proc designDocumentPostViewQueries*(self: CouchDb, ddoc: string, view:string, js
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}/queries", $jsonData)
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookmark: string = "", counts: JsonNode = nil, drilldown: JsonNode = nil, groupField: string = "", groupSort: JsonNode = nil, highlightFields: JsonNode = nil, highlightPreTag: string = "", highlightPostTag: string = "", highlightNumber: int = 0, highlightSize: int = 0, includeDocs: bool = false, includeFields: JsonNode = nil, limit: int = 0, query: string = "", ranges: JsonNode = nil, sort: JsonNode = nil, stale: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1334,6 +1409,7 @@ proc designDocumentGetSearch*(self: CouchDb, ddoc: string, index: string, bookma
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_search/{index.encodeUrl}{qstring}")
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGetSearchInfo*(self: CouchDb, ddoc: string, index: string): Future[JsonNode] {.async.} =
   ##
@@ -1345,6 +1421,7 @@ proc designDocumentGetSearchInfo*(self: CouchDb, ddoc: string, index: string): F
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_search_info/{index.encodeUrl}")
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
   ##
@@ -1356,6 +1433,7 @@ proc designDocumentPostUpdateFunc*(self: CouchDb, ddoc: string, function: string
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPutUpdateFunc*(self: CouchDb, ddoc: string, function: string, docId: string, jsonData: JsonNode = nil): Future[JsonNode] {.async.} =
   ##
@@ -1367,6 +1445,7 @@ proc designDocumentPutUpdateFunc*(self: CouchDb, ddoc: string, function: string,
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/_update/{function.encodeUrl}/{docId.encodeUrl}", $jsonData)
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {.async.} =
   ##
@@ -1378,6 +1457,7 @@ proc partitionDatabaseGet*(self: CouchDb, partition: string): Future[JsonNode] {
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}")
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -1395,6 +1475,7 @@ proc partitionDatabaseGetAllDocs*(self: CouchDb, partition: string, descending: 
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_all_docs{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: string, view: string, descending: bool = false, startkey: JsonNode = nil, endkey: JsonNode = nil, skip: int = 0, limit: int = 0): Future[JsonNode] {.async.} =
   ##
@@ -1412,6 +1493,7 @@ proc partitionDatabaseGetDesignView*(self: CouchDb, partition: string, ddoc: str
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_design/{ddoc.encodeUrl}/_view/{view.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1424,6 +1506,7 @@ proc partitionDatabasePostFind*(self: CouchDb, partition: string, jsonData: Json
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_find", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc partitionDatabasePostExplain*(self: CouchDb, partition: string, jsonData: JsonNode): Future[JsonNode] {.async.} =
   ##
@@ -1436,6 +1519,7 @@ proc partitionDatabasePostExplain*(self: CouchDb, partition: string, jsonData: J
   let res = await self.client.post(&"{self.url}/{self.database.encodeUrl}/_partition/{partition.encodeUrl}/_explain", $jsonData)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGet*(self: CouchDb, ddoc: string, attachments: bool = false, attEncodingInfo: bool = false, attsSince: seq[string] = @[], conflicts: bool = false, deletedConflicts: bool = false, latest: bool = false, localSeq: bool = false, meta: bool = false, openRevs: seq[string] = @[], rev: string = "", revs: bool = false, revsInfo: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1460,6 +1544,7 @@ proc designDocumentGet*(self: CouchDb, ddoc: string, attachments: bool = false, 
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
@@ -1475,6 +1560,7 @@ proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, rev: string
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", $data)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, attachments: seq[DocumentAttachment], rev: string = "", batch: bool = false, newEdits: bool = true): Future[JsonNode] {.async.} =
   ##
@@ -1493,6 +1579,7 @@ proc designDocumentPut*(self: CouchDb, ddoc: string, data: JsonNode, attachments
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}", docAttachments.body)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentDelete*(self: CouchDb, ddoc: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1507,6 +1594,7 @@ proc designDocumentDelete*(self: CouchDb, ddoc: string, rev: string, batch: bool
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGetAttachment*(self: CouchDb, ddoc: string, attachment: string, bytesRange: tuple[start: int, stop: int] = (0, 0), rev: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1525,6 +1613,7 @@ proc designDocumentGetAttachment*(self: CouchDb, ddoc: string, attachment: strin
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachment.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentPutAttachment*(self: CouchDb, ddoc: string, attachmentName: string, attachment: string, contentType: string, rev: string = ""): Future[JsonNode] {.async.} =
   ##
@@ -1546,6 +1635,7 @@ proc designDocumentPutAttachment*(self: CouchDb, ddoc: string, attachmentName: s
   let res = await self.client.put(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}", fileContent)
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentDeleteAttachment*(self: CouchDb, ddoc: string, attachmentName: string, rev: string, batch: bool = false): Future[JsonNode] {.async.} =
   ##
@@ -1560,6 +1650,7 @@ proc designDocumentDeleteAttachment*(self: CouchDb, ddoc: string, attachmentName
   let res = await self.client.delete(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}/{attachmentName.encodeUrl}{qstring}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc designDocumentGetInfo*(self: CouchDb, ddoc: string): Future[JsonNode] {.async.} =
   ##
@@ -1571,6 +1662,7 @@ proc designDocumentGetInfo*(self: CouchDb, ddoc: string): Future[JsonNode] {.asy
   let res = await self.client.get(&"{self.url}/{self.database.encodeUrl}/_design/{ddoc.encodeUrl}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc putUser*(self: CouchDb, name, password, userType: string, roles: seq[string]): Future[JsonNode] {.async.} =
   ##
@@ -1589,6 +1681,7 @@ proc putUser*(self: CouchDb, name, password, userType: string, roles: seq[string
   let res = await self.client.put(&"{self.url}/_users/org.couchdb.user:{name}", $jsonData)
 
   result = await res.toResponseMsg
+  self.client.close()
 
 proc getUser*(self: CouchDb, name: string): Future[JsonNode] {.async.} =
   ##
@@ -1600,6 +1693,7 @@ proc getUser*(self: CouchDb, name: string): Future[JsonNode] {.async.} =
   let res = await self.client.get(&"{self.url}/_users/org.couchdb.user:{name}")
   
   result = await res.toResponseMsg
+  self.client.close()
 
 proc userGetAuthCheck*(self: CouchDb, name, password: string): Future[JsonNode] {.async.} =
   ##
@@ -1613,3 +1707,4 @@ proc userGetAuthCheck*(self: CouchDb, name, password: string): Future[JsonNode] 
   let res = await self.client.get(&"{self.url}")
   
   result = await res.toResponseMsg
+  self.client.close()

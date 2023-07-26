@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.3.0"
 author        = "Amru Rosyada"
 description   = "Apache CouchDb driver (REST API) for nim lang."
 license       = "BSD"
